@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('jp_description')->nullable();
             $table->string('jp_location')->nullable();
-            $table->string('experience-level')->nullable();
+            $table->string('experience_level')->nullable();
             $table->string('employment_type')->nullable();
             $table->decimal('salary', 8, 2)->nullable();
             $table->boolean('is_active')->default(true);
@@ -30,7 +30,7 @@ return new class extends Migration
             // FK hinzufügen
             $table->foreignId('company_id')
                 ->constrained()
-                ->restrictedOnDelete();
+                ->restrictOnDelete();
             $table->foreignId('category_id')
                 ->constrained()
                 ->restrictOnDelete();

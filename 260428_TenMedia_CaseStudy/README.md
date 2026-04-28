@@ -1,59 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Bearbeitungskonzept 260428_TenMedia_CaseStudy
+Ausgangspunkt der Aufgabe
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Browserbasierte Anwendung zur Verwaltung von Stellenanzeigen.
 
-## About Laravel
+Hinweis: Das in der Aufgabenstellung genannte Modell "Job" wird in dieser Lösung als "JobPosting" umgesetzt.
+Modelle
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+    User
+    Company
+    Category
+    JobPosting
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Attribute User
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    id
+    usr_name
+    eMail
+    password
+    role
+    created_at
+    updated_at
 
-## Learning Laravel
+Attribute Company
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+    id
+    cmpny_name
+    cmpny_description
+    website
+    cmpny_location
+    created_at
+    updated_at
+    FK user_id
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Attribute Category
 
-## Laravel Sponsors
+    id
+    ctgry_name
+    ctgry_description
+    created_at
+    updated_at
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Attribute JobPosting
 
-### Premium Partners
+    id
+    title
+    jp_description
+    jp_location
+    experience_level
+    employment_type
+    salary
+    is_active
+    created_at
+    updated_at
+    FK company_id
+    FK category_id
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Rollen
 
-## Contributing
+    Admin
+    provider / Anbietende
+    applicant / Bewerbende
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Rechte/Policies Übersicht
 
-## Code of Conduct
+    Jobposting sehen
+    Jobposting erstellen
+    Eigenes Jobpostings bearbeiten
+    Fremde Jobposition bearbeiten
+    Companies sehen
+    Eigene Company bearbeiten
+    Categories verwalten
+    Users sehen
+    User Rollen bearbeiten
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Rechte/Policies ADMIN
 
-## Security Vulnerabilities
+    darf alles
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Rechte/Policies provider/Anbietende
 
-## License
+    Jobposting sehen
+    Jobposting erstellen
+    Eigenes Jobpostings bearbeiten
+    Companies sehen
+    Eigene Company bearbeiten
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Rechte/Policies applicant/Bewerbende
+
+    Jobposting sehen
+    Companies sehen
+
+Visualisierung mit draw.io
+
+    260427_RDBM_TenMedia_CaseStudy
+    260427_Sitemap_Policies_TenMedia_CaseStudy
+    260427_ERD_TenMedia_CaseStudy

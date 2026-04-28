@@ -18,13 +18,13 @@ class Company extends Model
     ];
 
     // Eine Company gehört zu genau einem User.
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     // Eine Company kann mehrere JobPostings besitzen.
-    public function jobPostings()
+    public function jobPostings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(JobPosting::class);
     }

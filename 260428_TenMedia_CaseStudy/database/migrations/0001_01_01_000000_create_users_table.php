@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
             // Attribut role über 2026_04_28_073842_add_role_to_users_table.php hinzugefügt
         });
 

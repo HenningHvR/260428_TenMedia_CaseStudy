@@ -10,10 +10,9 @@ class JobPosting extends Model
 {
     use HasFactory;
 
-    /**
-     * Attribute, die per Mass Assignment befüllt werden dürfen.
-     * Fremdschlüssel wie company_id und category_id werden bewusst nicht aufgenommen.
-     */
+    // Attribute, die per Mass Assignment befüllt werden dürfen.
+    // Fremdschlüssel wie company_id und category_id werden bewusst nicht aufgenommen.
+
     protected $fillable = [
         'title',
         'jp_description',
@@ -24,25 +23,25 @@ class JobPosting extends Model
         'is_active',
     ];
 
-    /**
-     * Datentyp-Umwandlungen für Eloquent.
-     */
+
+    // Datentyp-Umwandlungen für Eloquent.
+
     protected $casts = [
         'salary' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 
-    /**
-     * Ein JobPosting gehört zu genau einer Company.
-     */
+
+    // Ein JobPosting gehört zu genau einer Company.
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * Ein JobPosting gehört zu genau einer Category.
-     */
+
+    // Ein JobPosting gehört zu genau einer Category.
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

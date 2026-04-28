@@ -14,18 +14,19 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Attribute, die per Mass Assignment befüllt werden dürfen.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'usr_name',
         'email',
         'password',
+        'role',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Attribute, die bei der Ausgabe verborgen werden.
      *
      * @var list<string>
      */
@@ -35,7 +36,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Attribute, die automatisch umgewandelt werden sollen.
      *
      * @return array<string, string>
      */
@@ -45,5 +46,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Ein User kann mehrere Companies besitzen.
+     */
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
     }
 }

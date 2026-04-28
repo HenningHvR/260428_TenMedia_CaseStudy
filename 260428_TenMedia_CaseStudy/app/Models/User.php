@@ -63,7 +63,7 @@ class User extends Authenticatable
      */
     public function companies(): HasMany
     {
-        return $this->hasMany(Company::class);
+        return $this->hasMany(JobPosting::class);
     }
 
     public function jobPostings(): HasManyThrough

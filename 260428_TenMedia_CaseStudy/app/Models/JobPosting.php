@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JobPosting extends Model
 {
@@ -34,7 +35,7 @@ class JobPosting extends Model
     /**
      * Ein JobPosting gehört zu genau einer Company.
      */
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
@@ -42,7 +43,7 @@ class JobPosting extends Model
     /**
      * Ein JobPosting gehört zu genau einer Category.
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }

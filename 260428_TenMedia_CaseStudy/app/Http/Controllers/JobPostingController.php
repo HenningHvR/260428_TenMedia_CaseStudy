@@ -31,7 +31,7 @@ class JobPostingController extends Controller
     public function store(Request $request): RedirectResponse
     {
         /**
-         * Validierte Eingabedaten aus dem Formular.
+         * Validiert Eingabedaten aus dem Formular.
          */
         $validatedJobPostingData = $request->validate([
             'company_id' => ['required', 'exists:companies,id'],
@@ -44,6 +44,7 @@ class JobPostingController extends Controller
             'salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+        $validatedJobPostingData['is_active'] = $request->boolean('is_active', true);
 
         /**
          * Company, die dem aktuell eingeloggten User gehört.
@@ -112,6 +113,7 @@ class JobPostingController extends Controller
             'salary' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+        $validatedJobPostingData['is_active'] = $request->boolean('is_active');
 
         $category = Category::findOrFail($validatedJobPostingData['category_id']);
 
@@ -147,7 +149,7 @@ class JobPostingController extends Controller
             'experience_level' => $validatedJobPostingData['experience_level'] ?? null,
             'employment_type' => $validatedJobPostingData['employment_type'] ?? null,
             'salary' => $validatedJobPostingData['salary'] ?? null,
-            'is_active' => $validatedJobPostingData['is_active'] ?? true,
+            'is_active' => $validatedJobPostingData['is_active'],
         ];
     }
 }

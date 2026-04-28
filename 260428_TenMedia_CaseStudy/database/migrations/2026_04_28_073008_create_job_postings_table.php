@@ -26,11 +26,11 @@ return new class extends Migration
 
             // Laraval-Standard -> gibt 'created_at' und 'updated_at' aus
             $table->timestamps();
-            
+
             // FK hinzufügen
             $table->foreignId('company_id')
                 ->constrained()
-                ->cascadeOnDelete();
+                ->restrictedOnDelete();
             $table->foreignId('category_id')
                 ->constrained()
                 ->restrictOnDelete();

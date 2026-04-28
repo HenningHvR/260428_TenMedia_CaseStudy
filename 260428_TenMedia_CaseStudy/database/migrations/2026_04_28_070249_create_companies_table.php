@@ -12,8 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('companies', function (Blueprint $table) {
+            // PK
             $table->id();
+
+            // Tabellen-spezifische Attribute
+            $table->string('cmpny_name')->nullable();
+            $table->text('cmpny_description')->nullable();
+            $table->string('website')->nullable();
+            $table->string('cmpny_location')->nullable();
+
+            // Laraval-Standard -> gibt 'created_at' und 'updated_at' aus
             $table->timestamps();
+
+            // FK hinzufügen
+            $table->foreignId('user_id')
+                ->constrained()
+                ->restrictOnDelete();
         });
     }
 

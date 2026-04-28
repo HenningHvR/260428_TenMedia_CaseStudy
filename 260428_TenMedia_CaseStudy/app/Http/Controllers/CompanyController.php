@@ -6,7 +6,7 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 
-class Company extends Controller
+class CompanyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +35,7 @@ class Company extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Company $company)
+    public function show(CompanyController $company)
     {
         //
     }
@@ -43,7 +43,7 @@ class Company extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Company $company)
+    public function edit(CompanyController $company)
     {
         //
     }
@@ -51,7 +51,7 @@ class Company extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCompanyRequest $request, Company $company)
+    public function update(UpdateCompanyRequest $request, CompanyController $company)
     {
         //
     }
@@ -59,7 +59,7 @@ class Company extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Company $company)
+    public function destroy(CompanyController $company)
     {
         //
     }

@@ -12,13 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            // PK
             $table->id();
-            $table->string('name');
+
+            // eigene Namenskonvention eingepflegt
+            $table->string('usr_name');
+
+            //  Laravel-Standard
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            // Attribut role über 2026_04_28_073842_add_role_to_users_table.php hinzugefügt
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

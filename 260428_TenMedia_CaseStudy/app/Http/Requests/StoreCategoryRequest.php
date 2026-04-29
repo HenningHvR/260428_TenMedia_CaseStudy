@@ -7,23 +7,20 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCategoryRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+
+    // Prüft, ob der aktuelle User diese Anfrage ausführen darf.
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+    // Gibt die Validierungsregeln für das Anlegen einer Category zurück.
+    // @return array<string, ValidationRule|array<mixed>|string>
     public function rules(): array
     {
         return [
-            //
+            'ctgry_name' => ['required', 'string', 'max:255'],
+            'ctgry_description' => ['nullable', 'string'],
         ];
     }
 }

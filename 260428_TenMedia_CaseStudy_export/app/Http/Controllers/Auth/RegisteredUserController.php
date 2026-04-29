@@ -15,19 +15,15 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
+
+    // Anzeige der Registrierung.
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
+
+    // eingehende Registrierungsanfrage bearbeiten.
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

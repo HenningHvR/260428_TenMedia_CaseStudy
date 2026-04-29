@@ -9,11 +9,9 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+
+    // Ruft die für die Anfrage geltenden Validierungsregeln ab.
+    // @return array<string, ValidationRule|array<mixed>|string>
     public function rules(): array
     {
         return [

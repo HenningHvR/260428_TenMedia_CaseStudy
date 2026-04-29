@@ -6,17 +6,15 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Führt die Migrationen aus.
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             // PK
             $table->id();
 
-            // eigene Namenskonvention eingepflegt
-            $table->string('usr_name');
+            // eigene Namenskonvention korrigiert wegen Breeze-Namenskonvention
+            $table->string('name');
 
             //  Laravel-Standard
             $table->string('email')->unique();
@@ -44,9 +42,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+   // Migrationen rückgängig machen.
     public function down(): void
     {
         Schema::dropIfExists('users');

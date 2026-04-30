@@ -71,7 +71,7 @@
 
                         <div>
                             <p class="text-sm font-medium text-gray-700">
-                                Zugehörender User
+                                Zugehörige Nutzerin/Nutzer
                             </p>
 
                             <p class="mt-1 text-gray-900">

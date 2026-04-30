@@ -9,7 +9,6 @@ class JobPostingPolicy
 {
 
     // Admins dürfen alle Aktionen ausführen.
-
     public function before(User $user, string $ability): bool|null
     {
         if ($user->role === 'admin') {
@@ -20,7 +19,7 @@ class JobPostingPolicy
     }
 
 
-    // * Prüft, ob ein User die JobPosting-Liste sehen darf.
+    // Prüft, ob ein User die JobPosting-Liste sehen darf.
 
     public function viewAny(User $user): bool
     {

@@ -14,8 +14,10 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        // Lädt alle User sortiert nach Name.
-        $users = User::orderBy('name')->get();
+        // Lädt alle User inklusive Anzahl der indirekt zugehörigen JobPostings.
+        $users = User::withCount('jobPostings')
+            ->orderBy('name')
+            ->get();
 
         return view('users.index', compact('users'));
     }

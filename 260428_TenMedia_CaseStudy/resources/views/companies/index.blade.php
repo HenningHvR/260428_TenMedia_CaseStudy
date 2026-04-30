@@ -69,7 +69,7 @@
                                                 {{ $company->website }}
                                             </a>
                                         @else
-                                            Keine Website
+                                            Keine Webseite
                                         @endif
                                     </td>
 

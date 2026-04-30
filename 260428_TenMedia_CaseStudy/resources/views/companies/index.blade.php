@@ -27,7 +27,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    @if ($categories->isEmpty())
+                    @if ($companies->isEmpty())
                         <p>Es wurden noch keine Firmen angelegt.</p>
                     @else
                         <table class="min-w-full border border-gray-300">

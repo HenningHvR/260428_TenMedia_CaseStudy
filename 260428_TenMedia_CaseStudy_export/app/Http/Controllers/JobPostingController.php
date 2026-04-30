@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreJobPostingRequest;
+use App\Http\Requests\UpdateJobPostingRequest;
 use App\Models\Category;
+use App\Models\Company;
 use App\Models\JobPosting;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class JobPostingController extends Controller
 {
-
     // Zeigt eine Liste aller JobPostings an.
-
-    public function index()
+    public function index(): View
     {
         $this->authorize('viewAny', JobPosting::class);
 
-        // Lädt JobPostings inklusive zugehöriger Company und Category.
+        // Enthält alle JobPostings inklusive zugehöriger Company und Category.
         $jobPostings = JobPosting::with(['company', 'category'])
             ->latest()
             ->get();
@@ -24,58 +27,50 @@ class JobPostingController extends Controller
         return view('job_postings.index', compact('jobPostings'));
     }
 
-
     // Zeigt das Formular zum Anlegen eines neuen JobPostings an.
-
-    public function create()
+    public function create(): View
     {
         $this->authorize('create', JobPosting::class);
 
-        // Lädt nur die Companies des aktuell eingeloggten Users.
-        $companies = auth()->user()->companies;
+        // Enthält den aktuell eingeloggten User.
+        $currentUser = auth()->user();
 
-        // Lädt alle verfügbaren Kategorien.
-        $categories = Category::all();
+        // Enthält die Companies, die der aktuelle User für JobPostings verwenden darf.
+        $companies = $this->getSelectableCompaniesForUser($currentUser);
+
+        // Enthält alle verfügbaren Kategorien.
+        $categories = Category::orderBy('ctgry_name')->get();
 
         return view('job_postings.create', compact('companies', 'categories'));
     }
 
-
     // Speichert ein neues JobPosting.
-
-    public function store(Request $request): RedirectResponse
+    public function store(StoreJobPostingRequest $request): RedirectResponse
     {
         $this->authorize('create', JobPosting::class);
 
-        // Validiert die Eingabedaten aus dem Formular.
-        $validatedJobPostingData = $request->validate([
-            'company_id' => ['required', 'exists:companies,id'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'jp_description' => ['nullable', 'string'],
-            'jp_location' => ['nullable', 'string', 'max:255'],
-            'experience_level' => ['nullable', 'string', 'max:255'],
-            'employment_type' => ['nullable', 'string', 'max:255'],
-            'salary' => ['nullable', 'numeric', 'min:0'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        // Enthält die geprüften Eingabedaten aus dem Formular.
+        $validatedJobPostingData = $request->validated();
 
         // Setzt den Aktivstatus sauber als booleschen Wert.
         $validatedJobPostingData['is_active'] = $request->boolean('is_active', true);
 
-        // Lädt nur eine Company, die dem aktuell eingeloggten User gehört.
-        $company = $request->user()
-            ->companies()
-            ->where('id', $validatedJobPostingData['company_id'])
-            ->firstOrFail();
+        // Enthält den aktuell eingeloggten User.
+        $currentUser = $request->user();
 
-        // Lädt die zugehörige Category.
+        // Enthält die Company, die der aktuelle User verwenden darf.
+        $company = $this->findSelectableCompanyForUser(
+            $currentUser,
+            (int) $validatedJobPostingData['company_id']
+        );
+
+        // Enthält die ausgewählte Category.
         $category = Category::findOrFail($validatedJobPostingData['category_id']);
 
-        // Entfernt Fremdschlüssel aus den Mass-Assignment-Daten.
+        // Enthält nur die normalen JobPosting-Daten ohne Fremdschlüssel.
         $jobPostingDataWithoutForeignKeys = $this->getJobPostingDataWithoutForeignKeys($validatedJobPostingData);
 
-        // Erstellt ein neues JobPosting ohne direkte Fremdschlüssel-Zuweisung.
+        // Enthält das neue JobPosting ohne direkte Fremdschlüssel-Zuweisung.
         $jobPosting = new JobPosting($jobPostingDataWithoutForeignKeys);
 
         // Verknüpft das JobPosting mit der Category.
@@ -89,9 +84,8 @@ class JobPostingController extends Controller
             ->with('success', 'JobPosting wurde erfolgreich erstellt.');
     }
 
-
     // Zeigt ein einzelnes JobPosting an.
-    public function show(JobPosting $jobPosting)
+    public function show(JobPosting $jobPosting): View
     {
         $this->authorize('view', $jobPosting);
 
@@ -101,64 +95,65 @@ class JobPostingController extends Controller
         return view('job_postings.show', compact('jobPosting'));
     }
 
-
     // Zeigt das Formular zum Bearbeiten eines JobPostings an.
-
-    public function edit(JobPosting $jobPosting)
+    public function edit(JobPosting $jobPosting): View
     {
         $this->authorize('update', $jobPosting);
 
-        // Lädt nur die Companies des aktuell eingeloggten Users.
-        $companies = auth()->user()->companies;
+        // Enthält den aktuell eingeloggten User.
+        $currentUser = auth()->user();
 
-        // Lädt alle verfügbaren Kategorien.
-        $categories = Category::all();
+        // Enthält die Companies, die der aktuelle User für JobPostings verwenden darf.
+        $companies = $this->getSelectableCompaniesForUser($currentUser);
+
+        // Enthält alle verfügbaren Kategorien.
+        $categories = Category::orderBy('ctgry_name')->get();
 
         return view('job_postings.edit', compact('jobPosting', 'companies', 'categories'));
     }
 
-
     // Aktualisiert ein bestehendes JobPosting.
-
-    public function update(Request $request, JobPosting $jobPosting): RedirectResponse
+    public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting): RedirectResponse
     {
         $this->authorize('update', $jobPosting);
 
-        // Validiert die Eingabedaten aus dem Formular.
-        $validatedJobPostingData = $request->validate([
-            'category_id' => ['required', 'exists:categories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'jp_description' => ['nullable', 'string'],
-            'jp_location' => ['nullable', 'string', 'max:255'],
-            'experience_level' => ['nullable', 'string', 'max:255'],
-            'employment_type' => ['nullable', 'string', 'max:255'],
-            'salary' => ['nullable', 'numeric', 'min:0'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        // Enthält die geprüften Eingabedaten aus dem Formular.
+        $validatedJobPostingData = $request->validated();
 
         // Setzt den Aktivstatus sauber als booleschen Wert.
         $validatedJobPostingData['is_active'] = $request->boolean('is_active');
 
-        // Lädt die neu gewählte Category.
+        // Enthält den aktuell eingeloggten User.
+        $currentUser = $request->user();
+
+        // Enthält die Company, die der aktuelle User verwenden darf.
+        $company = $this->findSelectableCompanyForUser(
+            $currentUser,
+            (int) $validatedJobPostingData['company_id']
+        );
+
+        // Enthält die ausgewählte Category.
         $category = Category::findOrFail($validatedJobPostingData['category_id']);
 
-        // Entfernt Fremdschlüssel aus den Mass-Assignment-Daten.
+        // Enthält nur die normalen JobPosting-Daten ohne Fremdschlüssel.
         $jobPostingDataWithoutForeignKeys = $this->getJobPostingDataWithoutForeignKeys($validatedJobPostingData);
 
         // Aktualisiert die normalen Attribute des JobPostings.
         $jobPosting->update($jobPostingDataWithoutForeignKeys);
 
+        // Aktualisiert die Company-Zuordnung.
+        $jobPosting->company()->associate($company);
+
         // Aktualisiert die Category-Zuordnung.
         $jobPosting->category()->associate($category);
 
-        // Speichert die geänderte Category-Zuordnung.
+        // Speichert die geänderten Zuordnungen.
         $jobPosting->save();
 
         return redirect()
             ->route('job-postings.index')
             ->with('success', 'JobPosting wurde erfolgreich aktualisiert.');
     }
-
 
     // Löscht ein bestehendes JobPosting.
     public function destroy(JobPosting $jobPosting): RedirectResponse
@@ -173,9 +168,35 @@ class JobPostingController extends Controller
             ->with('success', 'JobPosting wurde erfolgreich gelöscht.');
     }
 
+    // Liefert alle Companies, die der aktuelle User auswählen darf.
+    private function getSelectableCompaniesForUser(User $currentUser): Collection
+    {
+        // Admins dürfen alle Companies auswählen.
+        if ($currentUser->role === 'admin') {
+            return Company::orderBy('cmpny_name')->get();
+        }
+
+        // Andere User dürfen nur eigene Companies auswählen.
+        return $currentUser->companies()
+            ->orderBy('cmpny_name')
+            ->get();
+    }
+
+    // Liefert eine konkrete Company, die der aktuelle User verwenden darf.
+    private function findSelectableCompanyForUser(User $currentUser, int $companyId): Company
+    {
+        // Admins dürfen jede Company verwenden.
+        if ($currentUser->role === 'admin') {
+            return Company::where('id', $companyId)->firstOrFail();
+        }
+
+        // Andere User dürfen nur eigene Companies verwenden.
+        return $currentUser->companies()
+            ->where('id', $companyId)
+            ->firstOrFail();
+    }
 
     // Entfernt Fremdschlüssel aus den validierten JobPosting-Daten.
-
     private function getJobPostingDataWithoutForeignKeys(array $validatedJobPostingData): array
     {
         return [

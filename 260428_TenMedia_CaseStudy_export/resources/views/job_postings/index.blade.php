@@ -34,9 +34,12 @@
                             <thead>
                             <tr class="bg-gray-100">
                                 <th class="border px-4 py-2 text-left">Titel</th>
-                                <th class="border px-4 py-2 text-left">Company</th>
+                                <th class="border px-4 py-2 text-left">Firma</th>
                                 <th class="border px-4 py-2 text-left">Kategorie</th>
                                 <th class="border px-4 py-2 text-left">Ort</th>
+                                <th class="border px-4 py-2 text-left">Erfahrungslevel</th>
+                                <th class="border px-4 py-2 text-left">Arbeitszeit</th>
+                                <th class="border px-4 py-2 text-left">Gehalt</th>
                                 <th class="border px-4 py-2 text-left">Status</th>
                                 <th class="border px-4 py-2 text-left">Aktionen</th>
                             </tr>
@@ -59,6 +62,22 @@
 
                                     <td class="border px-4 py-2">
                                         {{ $jobPosting->jp_location ?? 'Keine Angabe' }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $jobPosting->experience_level ?? 'Keine Angabe' }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $jobPosting->employment_type ?? 'Keine Angabe' }}
+                                    </td>
+
+                                    <td class="border px-4 py-2 whitespace-nowrap">
+                                        @if ($jobPosting->salary)
+                                            {{ number_format($jobPosting->salary, 0, ',', '.') }}&nbsp;€
+                                        @else
+                                            Keine Angabe
+                                        @endif
                                     </td>
 
                                     <td class="border px-4 py-2">

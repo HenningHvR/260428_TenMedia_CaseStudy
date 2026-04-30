@@ -18,7 +18,12 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'cmpny_name' => fake()->company(),
+            'cmpny_description' => fake()->sentence(),
+            // 'website' => fake()->url(),
+            // Feste Weiterleitung für alle Test-URLs
+            'website' => 'https://www.funfacts.de/',
+            'cmpny_location' => fake()->city(),
         ];
     }
 }

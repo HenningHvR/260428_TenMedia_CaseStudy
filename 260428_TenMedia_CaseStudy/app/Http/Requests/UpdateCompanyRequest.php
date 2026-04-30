@@ -2,28 +2,24 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCompanyRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Erlaubt die Nutzung dieses Requests.
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+    // Legt die Validierungsregeln für das Bearbeiten einer Company fest.
     public function rules(): array
     {
         return [
-            //
+            'cmpny_name' => ['required', 'string', 'max:255'],
+            'cmpny_description' => ['nullable', 'string'],
+            'website' => ['nullable', 'string', 'max:255'],
+            'cmpny_location' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

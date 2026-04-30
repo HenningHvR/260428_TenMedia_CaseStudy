@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -14,6 +14,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
+        // Lädt alle User sortiert nach Name.
         $users = User::orderBy('name')->get();
 
         return view('users.index', compact('users'));
@@ -36,12 +37,23 @@ class UserController extends Controller
     }
 
     // Aktualisiert die Rolle eines Users.
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(Request $request, User $user): RedirectResponse
     {
         $this->authorize('update', $user);
 
-        $validatedUserData = $request->validated();
+        // Verhindert, dass ein Admin die eigene Rolle ändert.
+        if ($request->user()->id === $user->id) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'Die eigene Rolle kann nicht geändert werden.');
+        }
 
+        // Validiert die Rolle.
+        $validatedUserData = $request->validate([
+            'role' => ['required', 'in:admin,provider,applicant'],
+        ]);
+
+        // Aktualisiert die Rolle des Users.
         $user->update($validatedUserData);
 
         return redirect()

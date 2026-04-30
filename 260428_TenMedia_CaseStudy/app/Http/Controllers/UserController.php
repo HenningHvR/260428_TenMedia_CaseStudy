@@ -27,6 +27,9 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
 
+        // Lädt die Companies des Users inklusive zugehöriger JobPostings und Categories.
+        $user->load(['companies.jobPostings.category']);
+
         return view('users.show', compact('user'));
     }
 

@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreJobPostingRequest;
+use App\Http\Requests\UpdateJobPostingRequest;
 use App\Models\Category;
 use App\Models\JobPosting;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class JobPostingController extends Controller
 {
-
     // Zeigt eine Liste aller JobPostings an.
-
     public function index()
     {
         $this->authorize('viewAny', JobPosting::class);
@@ -24,9 +23,7 @@ class JobPostingController extends Controller
         return view('job_postings.index', compact('jobPostings'));
     }
 
-
     // Zeigt das Formular zum Anlegen eines neuen JobPostings an.
-
     public function create()
     {
         $this->authorize('create', JobPosting::class);
@@ -40,25 +37,13 @@ class JobPostingController extends Controller
         return view('job_postings.create', compact('companies', 'categories'));
     }
 
-
     // Speichert ein neues JobPosting.
-
-    public function store(Request $request): RedirectResponse
+    public function store(StoreJobPostingRequest $request): RedirectResponse
     {
         $this->authorize('create', JobPosting::class);
 
-        // Validiert die Eingabedaten aus dem Formular.
-        $validatedJobPostingData = $request->validate([
-            'company_id' => ['required', 'exists:companies,id'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'jp_description' => ['nullable', 'string'],
-            'jp_location' => ['nullable', 'string', 'max:255'],
-            'experience_level' => ['nullable', 'string', 'max:255'],
-            'employment_type' => ['nullable', 'string', 'max:255'],
-            'salary' => ['nullable', 'numeric', 'min:0'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        // Enthält die geprüften Eingabedaten aus dem Formular.
+        $validatedJobPostingData = $request->validated();
 
         // Setzt den Aktivstatus sauber als booleschen Wert.
         $validatedJobPostingData['is_active'] = $request->boolean('is_active', true);
@@ -89,7 +74,6 @@ class JobPostingController extends Controller
             ->with('success', 'JobPosting wurde erfolgreich erstellt.');
     }
 
-
     // Zeigt ein einzelnes JobPosting an.
     public function show(JobPosting $jobPosting)
     {
@@ -101,9 +85,7 @@ class JobPostingController extends Controller
         return view('job_postings.show', compact('jobPosting'));
     }
 
-
     // Zeigt das Formular zum Bearbeiten eines JobPostings an.
-
     public function edit(JobPosting $jobPosting)
     {
         $this->authorize('update', $jobPosting);
@@ -117,24 +99,13 @@ class JobPostingController extends Controller
         return view('job_postings.edit', compact('jobPosting', 'companies', 'categories'));
     }
 
-
     // Aktualisiert ein bestehendes JobPosting.
-
-    public function update(Request $request, JobPosting $jobPosting): RedirectResponse
+    public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting): RedirectResponse
     {
         $this->authorize('update', $jobPosting);
 
-        // Validiert die Eingabedaten aus dem Formular.
-        $validatedJobPostingData = $request->validate([
-            'category_id' => ['required', 'exists:categories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'jp_description' => ['nullable', 'string'],
-            'jp_location' => ['nullable', 'string', 'max:255'],
-            'experience_level' => ['nullable', 'string', 'max:255'],
-            'employment_type' => ['nullable', 'string', 'max:255'],
-            'salary' => ['nullable', 'numeric', 'min:0'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        // Enthält die geprüften Eingabedaten aus dem Formular.
+        $validatedJobPostingData = $request->validated();
 
         // Setzt den Aktivstatus sauber als booleschen Wert.
         $validatedJobPostingData['is_active'] = $request->boolean('is_active');
@@ -159,7 +130,6 @@ class JobPostingController extends Controller
             ->with('success', 'JobPosting wurde erfolgreich aktualisiert.');
     }
 
-
     // Löscht ein bestehendes JobPosting.
     public function destroy(JobPosting $jobPosting): RedirectResponse
     {
@@ -173,9 +143,7 @@ class JobPostingController extends Controller
             ->with('success', 'JobPosting wurde erfolgreich gelöscht.');
     }
 
-
     // Entfernt Fremdschlüssel aus den validierten JobPosting-Daten.
-
     private function getJobPostingDataWithoutForeignKeys(array $validatedJobPostingData): array
     {
         return [

@@ -7,23 +7,28 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreJobPostingRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Prüft, ob der aktuelle User diese Anfrage ausführen darf.
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+
+    // Gibt die Validierungsregeln für das Anlegen eines JobPostings zurück.
+    // @return array<string, ValidationRule|array<mixed>|string>
+
     public function rules(): array
     {
         return [
-            //
+            'company_id' => ['required', 'exists:companies,id'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'jp_description' => ['nullable', 'string'],
+            'jp_location' => ['nullable', 'string', 'max:255'],
+            'experience_level' => ['nullable', 'string', 'max:255'],
+            'employment_type' => ['nullable', 'string', 'max:255'],
+            'salary' => ['nullable', 'numeric', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
         ];
     }
 }

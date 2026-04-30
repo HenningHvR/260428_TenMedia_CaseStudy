@@ -12,9 +12,32 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    {{-- Link zum Dashboard. --}}
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        Dashboard
                     </x-nav-link>
+
+                    {{-- Link zur Kategorienübersicht. --}}
+                    <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
+                        Kategorien
+                    </x-nav-link>
+
+                    {{-- Link zur Firmenübersicht. --}}
+                    <x-nav-link :href="route('companies.index')" :active="request()->routeIs('companies.*')">
+                        Firmen
+                    </x-nav-link>
+
+                    {{-- Link zur JobPosting-Übersicht. --}}
+                    <x-nav-link :href="route('job-postings.index')" :active="request()->routeIs('job-postings.*')">
+                        JobPostings
+                    </x-nav-link>
+
+                    {{-- Link zur Userverwaltung, nur sichtbar für Admins. --}}
+                    @if (auth()->user()?->role === 'admin')
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                            User
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +93,28 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            {{-- Link zur Kategorienübersicht in der mobilen Navigation. --}}
+            <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
+                Kategorien
+            </x-responsive-nav-link>
+
+            {{-- Link zur Firmenübersicht in der mobilen Navigation. --}}
+            <x-responsive-nav-link :href="route('companies.index')" :active="request()->routeIs('companies.*')">
+                Firmen
+            </x-responsive-nav-link>
+
+            {{-- Link zur JobPosting-Übersicht in der mobilen Navigation. --}}
+            <x-responsive-nav-link :href="route('job-postings.index')" :active="request()->routeIs('job-postings.*')">
+                JobPostings
+            </x-responsive-nav-link>
+
+            {{-- Link zur Userverwaltung, mobil nur sichtbar für Admins. --}}
+            @if (auth()->user()?->role === 'admin')
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    User
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

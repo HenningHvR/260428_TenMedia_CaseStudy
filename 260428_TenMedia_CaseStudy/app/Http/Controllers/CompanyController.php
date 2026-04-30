@@ -13,8 +13,10 @@ class CompanyController extends Controller
     // Zeigt eine Liste aller Companies an.
     public function index(): View
     {
-        // Enthält alle Companies inklusive Anzahl der zugehörigen JobPostings und des zugehörigen Users.
-        $companies = Company::with(['user'])
+        $this->authorize('viewAny', Company::class);
+
+        // Lädt alle Companies inklusive User und Anzahl der zugehörigen JobPostings.
+        $companies = Company::with('user')
             ->withCount('jobPostings')
             ->orderBy('cmpny_name')
             ->get();
@@ -25,12 +27,16 @@ class CompanyController extends Controller
     // Zeigt das Formular zum Anlegen einer neuen Company an.
     public function create(): View
     {
+        $this->authorize('create', Company::class);
+
         return view('companies.create');
     }
 
     // Speichert eine neue Company.
     public function store(StoreCompanyRequest $request): RedirectResponse
     {
+        $this->authorize('create', Company::class);
+
         // Enthält die geprüften Formulardaten.
         $validatedCompanyData = $request->validated();
 
@@ -47,6 +53,8 @@ class CompanyController extends Controller
     // Zeigt eine einzelne Company an.
     public function show(Company $company): View
     {
+        $this->authorize('view', $company);
+
         // Lädt den zugehörigen User und alle JobPostings inklusive Category.
         $company->load(['user', 'jobPostings.category']);
 
@@ -56,12 +64,16 @@ class CompanyController extends Controller
     // Zeigt das Formular zum Bearbeiten einer Company an.
     public function edit(Company $company): View
     {
+        $this->authorize('update', $company);
+
         return view('companies.edit', compact('company'));
     }
 
     // Aktualisiert eine bestehende Company.
     public function update(UpdateCompanyRequest $request, Company $company): RedirectResponse
     {
+        $this->authorize('update', $company);
+
         // Enthält die geprüften Formulardaten.
         $validatedCompanyData = $request->validated();
 
@@ -76,6 +88,8 @@ class CompanyController extends Controller
     // Löscht eine bestehende Company.
     public function destroy(Company $company): RedirectResponse
     {
+        $this->authorize('delete', $company);
+
         // Prüft, ob noch JobPostings mit dieser Company verbunden sind.
         if ($company->jobPostings()->exists()) {
             return redirect()

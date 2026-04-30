@@ -2,63 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateUserRequest;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // Zeigt eine Liste aller User an.
+    public function index(): View
     {
-        //
+        $this->authorize('viewAny', User::class);
+
+        $users = User::orderBy('name')->get();
+
+        return view('users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Zeigt einen einzelnen User an.
+    public function show(User $user): View
     {
-        //
+        $this->authorize('view', $user);
+
+        return view('users.show', compact('user'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // Zeigt das Formular zum Bearbeiten eines Users an.
+    public function edit(User $user): View
     {
-        //
+        $this->authorize('update', $user);
+
+        return view('users.edit', compact('user'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Aktualisiert die Rolle eines Users.
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        //
-    }
+        $this->authorize('update', $user);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $validatedUserData = $request->validated();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $user->update($validatedUserData);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User-Rolle wurde erfolgreich aktualisiert.');
     }
 }

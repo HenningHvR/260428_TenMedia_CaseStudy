@@ -2,25 +2,21 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateJobPostingRequest extends FormRequest
 {
-    // Prüft, ob der aktuelle User diese Anfrage ausführen darf.
+    // Erlaubt die Nutzung dieses Requests.
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Gibt die Validierungsregeln für das Aktualisieren eines JobPostings zurück.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+    // Legt die Validierungsregeln für das Bearbeiten eines JobPostings fest.
     public function rules(): array
     {
         return [
+            'company_id' => ['required', 'exists:companies,id'],
             'category_id' => ['required', 'exists:categories,id'],
             'title' => ['required', 'string', 'max:255'],
             'jp_description' => ['nullable', 'string'],

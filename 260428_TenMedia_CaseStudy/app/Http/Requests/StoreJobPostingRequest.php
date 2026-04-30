@@ -2,21 +2,17 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreJobPostingRequest extends FormRequest
 {
-    // Prüft, ob der aktuelle User diese Anfrage ausführen darf.
+    // Erlaubt die Nutzung dieses Requests.
     public function authorize(): bool
     {
         return true;
     }
 
-
-    // Gibt die Validierungsregeln für das Anlegen eines JobPostings zurück.
-    // @return array<string, ValidationRule|array<mixed>|string>
-
+    // Legt die Validierungsregeln für das Erstellen eines JobPostings fest.
     public function rules(): array
     {
         return [

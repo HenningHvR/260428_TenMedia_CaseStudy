@@ -61,9 +61,12 @@
                             <input
                                 id="website"
                                 name="website"
-                                type="url"
+                                type="text"
+                                inputmode="url"
                                 value="{{ old('website') }}"
-                                placeholder="https://www.beispiel.de"
+                                placeholder="www.beispiel.de"
+                                pattern="^(https?://www\.|www\.).+"
+                                title="Die URL muss mit https://www., http://www. oder www. beginnen."
                                 class="block mt-1 w-full border-gray-300 rounded-md shadow-sm"
                             >
 

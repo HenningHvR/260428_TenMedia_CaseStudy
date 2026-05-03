@@ -1,0 +1,76 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#1564
+    [34mall[39m: [
+      [34;4mApp\Models\User[39;24m {#8579
+        [34mname[39m: [32m"[39m[32mAdmin User[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32madmin@example.com[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32madmin[39m[32m"[39m,
+        [34mcompany_id[39m: [36mnull[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8578
+        [34mname[39m: [32m"[39m[32mTest User[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mtest@example.com[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m6[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8577
+        [34mname[39m: [32m"[39m[32mTest_1 Applicant_1[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mtest_1-applicant_1@example.com[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mapplicant[39m[32m"[39m,
+        [34mcompany_id[39m: [36mnull[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8576
+        [34mname[39m: [32m"[39m[32mTest_2 Provider_1[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mprovider@codehafen.eu[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m1[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8575
+        [34mname[39m: [32m"[39m[32mTest_2 Provider_2[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mprovider@bytewerkpara.de[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m2[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8574
+        [34mname[39m: [32m"[39m[32mTest_2 Provider_3[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mprovider@mk-consulting.com[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m3[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8573
+        [34mname[39m: [32m"[39m[32mTest_2 Provider_4[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mprovider@llss.org[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m4[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8572
+        [34mname[39m: [32m"[39m[32mTest_2 Provider_5[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mprovider@ast-feder.org[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m5[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8571
+        [34mname[39m: [32m"[39m[32mTest_2 Provider_6[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mprovider@hobelherz.net[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mprovider[39m[32m"[39m,
+        [34mcompany_id[39m: [35m6[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8570
+        [34mname[39m: [32m"[39m[32mTest_3 Applicant_2[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mapplicant_2@privat.de[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mapplicant[39m[32m"[39m,
+        [34mcompany_id[39m: [36mnull[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8569
+        [34mname[39m: [32m"[39m[32mTest_3 Applicant_3[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mapplicant_3@eigen.de[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mapplicant[39m[32m"[39m,
+        [34mcompany_id[39m: [36mnull[39m,
+      },
+      [34;4mApp\Models\User[39;24m {#8568
+        [34mname[39m: [32m"[39m[32mTest_3 Applicant_4[39m[32m"[39m,
+        [34memail[39m: [32m"[39m[32mapplicant_4@t-online.de[39m[32m"[39m,
+        [34mrole[39m: [32m"[39m[32mapplicant[39m[32m"[39m,
+        [34mcompany_id[39m: [36mnull[39m,
+      },
+    ],
+  }

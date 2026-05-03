@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateCompanyRequest extends FormRequest
 {
@@ -26,23 +25,7 @@ class UpdateCompanyRequest extends FormRequest
                 'regex:/^(https?:\/\/www\.|www\.)[a-z0-9-]+(\.[a-z0-9-]+)+(\/.*)?$/i',
             ],
             'cmpny_location' => ['nullable', 'string', 'max:255'],
-            'user_id' => $this->getProviderValidationRules(),
         ];
-    }
-
-    // Legt fest, ob die Provider-Zuordnung geändert werden darf.
-    private function getProviderValidationRules(): array
-    {
-        if ($this->user()?->role === 'admin') {
-            return [
-                'required',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    $query->where('role', 'provider');
-                }),
-            ];
-        }
-
-        return ['prohibited'];
     }
 
     // Legt eigene Fehlermeldungen für die Validierung fest.
@@ -50,9 +33,6 @@ class UpdateCompanyRequest extends FormRequest
     {
         return [
             'website.regex' => 'Die URL muss mit https://www., http://www. oder www. beginnen und eine gültige Top-Level-Domain enthalten.',
-            'user_id.required' => 'Bitte wähle einen Provider für diese Firma aus.',
-            'user_id.exists' => 'Der ausgewählte User ist kein gültiger Provider.',
-            'user_id.prohibited' => 'Nur Admins dürfen eine Firma einem anderen Provider zuordnen.',
         ];
     }
 }

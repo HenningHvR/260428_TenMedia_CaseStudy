@@ -24,26 +24,17 @@
                 </div>
             @endif
 
+            <div class="mb-4 p-4 bg-blue-100 text-blue-800 rounded">
+                Provider werden nicht in der Firmenansicht zugeordnet.
+                Die Zuordnung erfolgt in der Userverwaltung über das Feld Firma.
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
                     <form method="POST" action="{{ route('companies.update', $company) }}">
                         @csrf
                         @method('PUT')
-
-                        @if (auth()->user()?->role === 'admin')
-
-                        @else
-                            <div class="mb-4">
-                                <p class="block font-medium text-sm text-gray-700">
-                                    Provider
-                                </p>
-
-                                <p class="mt-1 text-gray-900">
-                                    {{ $company->user->name ?? 'Kein Provider zugeordnet' }}
-                                </p>
-                            </div>
-                        @endif
 
                         <div class="mb-4">
                             <label for="cmpny_name" class="block font-medium text-sm text-gray-700">
@@ -83,7 +74,7 @@
 
                         <div class="mb-4">
                             <label for="website" class="block font-medium text-sm text-gray-700">
-                                URL
+                                Website
                             </label>
 
                             <input
@@ -92,7 +83,7 @@
                                 type="text"
                                 inputmode="url"
                                 value="{{ old('website', $company->website) }}"
-                                placeholder="www.beispiel.com"
+                                placeholder="www.beispiel.de"
                                 pattern="^(https?://www\.|www\.).+"
                                 title="Die URL muss mit https://www., http://www. oder www. beginnen."
                                 class="block mt-1 w-full border-gray-300 rounded-md shadow-sm"
@@ -103,7 +94,7 @@
                             @enderror
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-6">
                             <label for="cmpny_location" class="block font-medium text-sm text-gray-700">
                                 Standort
                             </label>
@@ -147,6 +138,7 @@
 
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

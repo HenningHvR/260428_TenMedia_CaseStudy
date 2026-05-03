@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -35,10 +36,17 @@ class User extends Authenticatable
         ];
     }
 
-    // Ein User kann mehrere Companies besitzen.
+    // Ein User kann technisch mehrere Companies besitzen.
+    // Für Provider wird in der Anwendung maximal eine Company erlaubt.
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);
+    }
+
+    // Ein Provider soll fachlich maximal eine Company besitzen.
+    public function company(): HasOne
+    {
+        return $this->hasOne(Company::class);
     }
 
     // Ein User kann über seine Companies mehrere JobPostings besitzen.

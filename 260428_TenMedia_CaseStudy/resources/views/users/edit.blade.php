@@ -194,6 +194,76 @@
                             </a>
                         </div>
                     </form>
+                    @if ($user->role === 'provider')
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="text-lg font-semibold mb-4">
+                                Firma zuordnen
+                            </h3>
+
+                            @if ($companies->isEmpty())
+                                <p class="text-sm text-gray-700">
+                                    Es sind noch keine Firmen vorhanden.
+                                </p>
+                            @else
+                                <form method="POST" action="{{ route('users.assign-company', $user) }}">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <div class="mb-4">
+                                        <label for="company_id" class="block font-medium text-sm text-gray-700">
+                                            Firma auswählen
+                                        </label>
+
+                                        <select
+                                            id="company_id"
+                                            name="company_id"
+                                            required
+                                            class="block mt-1 w-full border-gray-300 rounded-md shadow-sm"
+                                        >
+                                            <option value="">
+                                                Bitte Firma auswählen
+                                            </option>
+
+                                            @foreach ($companies as $company)
+                                                <option
+                                                    value="{{ $company->id }}"
+                                                    @selected(old('company_id', $user->company?->id) == $company->id)
+                                                >
+                                                    {{ $company->cmpny_name }}
+
+                                                    @if ($company->user)
+                                                        | aktuell: {{ $company->user->name }} | {{ $company->user->email }}
+                                                    @else
+                                                        | aktuell: keine Zuordnung
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+                                        @error('company_id')
+                                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="flex items-center gap-4">
+                                        <button
+                                            type="submit"
+                                            class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+                                        >
+                                            Firma zuordnen
+                                        </button>
+
+                                        <a
+                                            href="{{ route('users.show', $user) }}"
+                                            class="text-sm text-gray-600 hover:text-gray-900"
+                                        >
+                                            Zur User-Detailseite
+                                        </a>
+                                    </div>
+                                </form>
+                            @endif
+                        </div>
+                    @endif
 
                 </div>
             </div>

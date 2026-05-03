@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,8 +17,8 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        // Lädt alle User mit der zugehörigen Firma inklusive Anzahl der indirekt zugehörigen JobPostings.
-        $users = User::with('companies')
+        // Lädt alle User inklusive zugehöriger Firma und Anzahl der indirekt zugehörigen JobPostings.
+        $users = User::with('company')
             ->withCount('jobPostings')
             ->orderBy('name')
             ->get();
@@ -41,7 +42,15 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', compact('user'));
+        // Lädt die aktuell zugeordnete Firma des Users.
+        $user->load('company');
+
+        // Lädt alle Firmen inklusive aktuell zugeordnetem Provider.
+        $companies = Company::with('user')
+            ->orderBy('cmpny_name')
+            ->get();
+
+        return view('users.edit', compact('user', 'companies'));
     }
 
     // Aktualisiert einen bestehenden User.
@@ -89,5 +98,49 @@ class UserController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', 'User wurde erfolgreich aktualisiert.');
+    }
+
+    // Ordnet einem Provider genau eine bestehende Firma zu.
+    public function assignCompany(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('update', $user);
+
+        // Prüft, ob der ausgewählte User wirklich Provider ist.
+        if ($user->role !== 'provider') {
+            return redirect()
+                ->route('users.edit', $user)
+                ->with('error', 'Firmen können nur Usern mit der Rolle provider zugeordnet werden.');
+        }
+
+        // Validiert die ausgewählte Firma.
+        $validatedCompanyData = $request->validate([
+            'company_id' => [
+                'required',
+                Rule::exists('companies', 'id'),
+            ],
+        ]);
+
+        // Prüft, ob der Provider bereits eine andere Firma besitzt.
+        $providerAlreadyHasAnotherCompany = $user->company()
+            ->where('id', '!=', $validatedCompanyData['company_id'])
+            ->exists();
+
+        if ($providerAlreadyHasAnotherCompany) {
+            return redirect()
+                ->route('users.edit', $user)
+                ->withInput()
+                ->with('error', 'Dieser Provider besitzt bereits eine andere Firma.');
+        }
+
+        // Lädt die ausgewählte Firma.
+        $company = Company::findOrFail($validatedCompanyData['company_id']);
+
+        // Ordnet die Firma dem Provider zu.
+        $company->user()->associate($user);
+        $company->save();
+
+        return redirect()
+            ->route('users.edit', $user)
+            ->with('success', 'Firma wurde dem Provider erfolgreich zugeordnet.');
     }
 }

@@ -13,7 +13,7 @@ class UpdateCompanyRequest extends FormRequest
         return true;
     }
 
-    // Legt die Validierungsregeln für das Bearbeiten einer Company fest.
+    // Legt die Validierungsregeln für das Bearbeiten einer Firma fest.
     public function rules(): array
     {
         return [

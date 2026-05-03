@@ -13,7 +13,7 @@ class StoreCompanyRequest extends FormRequest
         return true;
     }
 
-    // Legt die Validierungsregeln für das Erstellen einer Company fest.
+    // Legt die Validierungsregeln für das Erstellen einer Firma fest.
     public function rules(): array
     {
         return [

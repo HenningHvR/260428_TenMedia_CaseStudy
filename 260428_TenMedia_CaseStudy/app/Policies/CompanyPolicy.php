@@ -30,7 +30,6 @@ class CompanyPolicy
     }
 
     // Prüft, ob ein User eine Firma erstellen darf.
-    // Nicht-Admins dürfen keine Companies erstellen.
     // Admins werden über before() erlaubt.
     public function create(User $user): bool
     {

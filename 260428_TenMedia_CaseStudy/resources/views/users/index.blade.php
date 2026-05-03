@@ -84,13 +84,9 @@
                                     <td class="border px-4 py-2">
                                         {{ $user->role }}
                                     </td>
-                                    
+
                                     <td class="border px-4 py-2">
-                                        @if ($user->companies->isEmpty())
-                                            Keine Firma
-                                        @else
-                                            {{ $user->companies->pluck('cmpny_name')->join(', ') }}
-                                        @endif
+                                        {{ $user->company?->cmpny_name ?? 'Keine Firma' }}
                                     </td>
 
                                     <td class="border px-4 py-2">

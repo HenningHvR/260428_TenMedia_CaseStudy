@@ -35,15 +35,12 @@ class JobPostingPolicy
         return $user->role === 'provider';
     }
 
-    // Prüft, ob ein User ein JobPosting bearbeiten darf.
     public function update(User $user, JobPosting $jobPosting): bool
     {
         return $user->role === 'provider'
-            && $jobPosting->company !== null
-            && $jobPosting->company->user_id === $user->id;
+            && $user->company_id === $jobPosting->company_id;
     }
 
-    // Prüft, ob ein User ein JobPosting löschen darf.
     public function delete(User $user, JobPosting $jobPosting): bool
     {
         return $this->update($user, $jobPosting);

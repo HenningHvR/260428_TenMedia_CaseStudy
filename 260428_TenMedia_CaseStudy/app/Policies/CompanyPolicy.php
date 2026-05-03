@@ -40,7 +40,7 @@ class CompanyPolicy
     public function update(User $user, Company $company): bool
     {
         return $user->role === 'provider'
-            && $company->user_id === $user->id;
+            && $user->company_id === $company->id;
     }
 
     // Prüft, ob ein User eine Firma löschen darf.

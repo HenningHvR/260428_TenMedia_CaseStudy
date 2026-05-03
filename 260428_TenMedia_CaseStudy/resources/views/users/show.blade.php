@@ -64,11 +64,21 @@
 
                         <div>
                             <p class="text-sm font-medium text-gray-700">
+                                Firma
+                            </p>
+
+                            <p class="mt-1 text-gray-900">
+                                {{ $user->company?->cmpny_name ?? 'Keine Firma' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">
                                 Anzahl JobPostings
                             </p>
 
                             <p class="mt-1 text-gray-900">
-                                {{ $user->companies->sum(fn ($company) => $company->jobPostings->count()) }}
+                                {{ $user->jobPostings->count() }}
                             </p>
                         </div>
 
@@ -119,71 +129,6 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900">
-
-                    <h3 class="text-lg font-semibold mb-4">
-                        Zugehörige Companies
-                    </h3>
-
-                    @if ($user->companies->isEmpty())
-                        <p>
-                            Diesem User sind noch keine Companies zugeordnet.
-                        </p>
-                    @else
-                        <table class="min-w-full border border-gray-300">
-                            <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">
-                                    Firma
-                                </th>
-
-                                <th class="border px-4 py-2 text-left">
-                                    Standort
-                                </th>
-
-                                <th class="border px-4 py-2 text-left">
-                                    JobPostings
-                                </th>
-
-                                <th class="border px-4 py-2 text-left">
-                                    Aktion
-                                </th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            @foreach ($user->companies as $company)
-                                <tr>
-                                    <td class="border px-4 py-2">
-                                        {{ $company->cmpny_name }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        {{ $company->cmpny_location ?? 'Keine Angabe' }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        {{ $company->jobPostings->count() }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        <a
-                                            href="{{ route('companies.show', $company) }}"
-                                            class="text-blue-600 hover:underline"
-                                        >
-                                            Anzeigen
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    @endif
-
-                </div>
-            </div>
-
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
@@ -191,13 +136,9 @@
                         Zugehörige JobPostings
                     </h3>
 
-                    @php
-                        $jobPostingsCount = $user->companies->sum(fn ($company) => $company->jobPostings->count());
-                    @endphp
-
-                    @if ($jobPostingsCount === 0)
+                    @if ($user->jobPostings->isEmpty())
                         <p>
-                            Diesem User sind noch keine JobPostings über Companies zugeordnet.
+                            Diesem User sind noch keine JobPostings zugeordnet.
                         </p>
                     @else
                         <table class="min-w-full border border-gray-300">
@@ -230,43 +171,41 @@
                             </thead>
 
                             <tbody>
-                            @foreach ($user->companies as $company)
-                                @foreach ($company->jobPostings as $jobPosting)
-                                    <tr>
-                                        <td class="border px-4 py-2">
-                                            {{ $jobPosting->title }}
-                                        </td>
+                            @foreach ($user->jobPostings as $jobPosting)
+                                <tr>
+                                    <td class="border px-4 py-2">
+                                        {{ $jobPosting->title }}
+                                    </td>
 
-                                        <td class="border px-4 py-2">
-                                            {{ $company->cmpny_name }}
-                                        </td>
+                                    <td class="border px-4 py-2">
+                                        {{ $jobPosting->company->cmpny_name ?? 'Keine Firma' }}
+                                    </td>
 
-                                        <td class="border px-4 py-2">
-                                            {{ $jobPosting->category->ctgry_name ?? 'Keine Kategorie' }}
-                                        </td>
+                                    <td class="border px-4 py-2">
+                                        {{ $jobPosting->category->ctgry_name ?? 'Keine Kategorie' }}
+                                    </td>
 
-                                        <td class="border px-4 py-2">
-                                            {{ $jobPosting->jp_location ?? 'Keine Angabe' }}
-                                        </td>
+                                    <td class="border px-4 py-2">
+                                        {{ $jobPosting->jp_location ?? 'Keine Angabe' }}
+                                    </td>
 
-                                        <td class="border px-4 py-2">
-                                            @if ($jobPosting->is_active)
-                                                Aktiv
-                                            @else
-                                                Inaktiv
-                                            @endif
-                                        </td>
+                                    <td class="border px-4 py-2">
+                                        @if ($jobPosting->is_active)
+                                            Aktiv
+                                        @else
+                                            Inaktiv
+                                        @endif
+                                    </td>
 
-                                        <td class="border px-4 py-2">
-                                            <a
-                                                href="{{ route('job-postings.show', $jobPosting) }}"
-                                                class="text-blue-600 hover:underline"
-                                            >
-                                                Anzeigen
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                    <td class="border px-4 py-2">
+                                        <a
+                                            href="{{ route('job-postings.show', $jobPosting) }}"
+                                            class="text-blue-600 hover:underline"
+                                        >
+                                            Anzeigen
+                                        </a>
+                                    </td>
+                                </tr>
                             @endforeach
                             </tbody>
                         </table>

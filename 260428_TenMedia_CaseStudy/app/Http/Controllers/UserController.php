@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        // Lädt alle User inklusive zugehöriger Firma und Anzahl der indirekt zugehörigen JobPostings.
+        // Lädt alle User inklusive zugeordneter Company und Anzahl der JobPostings.
         $users = User::with('company')
             ->withCount('jobPostings')
             ->orderBy('name')
@@ -31,8 +31,8 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
 
-        // Lädt die Companies des Users inklusive zugehöriger JobPostings und Categories.
-        $user->load(['companies.jobPostings.category']);
+        // Lädt die zugeordnete Company und die JobPostings des Users.
+        $user->load(['company', 'jobPostings.company', 'jobPostings.category']);
 
         return view('users.show', compact('user'));
     }
@@ -42,12 +42,11 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        // Lädt die aktuell zugeordnete Firma des Users.
+        // Lädt die aktuell zugeordnete Company des Users.
         $user->load('company');
 
-        // Lädt alle Firmen inklusive aktuell zugeordnetem Provider.
-        $companies = Company::with('user')
-            ->orderBy('cmpny_name')
+        // Lädt alle Companies für die Auswahl im Bearbeitungsformular.
+        $companies = Company::orderBy('cmpny_name')
             ->get();
 
         return view('users.edit', compact('user', 'companies'));
@@ -58,7 +57,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        // Validiert die Eingabedaten für Name, E-Mail, optionales Passwort und Rolle.
+        // Validiert die Eingabedaten für Userdaten, Rolle und optionale Company-Zuordnung.
         $validatedUserData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -71,12 +70,14 @@ class UserController extends Controller
             ],
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'role' => ['required', 'in:admin,provider,applicant'],
+            'company_id' => ['nullable', Rule::exists('companies', 'id')],
         ]);
 
         // Verhindert, dass ein Admin die eigene Rolle ändert.
         if ($request->user()->id === $user->id && $validatedUserData['role'] !== $user->role) {
             return redirect()
                 ->route('users.edit', $user)
+                ->withInput()
                 ->with('error', 'Die eigene Rolle kann nicht geändert werden.');
         }
 
@@ -86,6 +87,14 @@ class UserController extends Controller
             'email' => $validatedUserData['email'],
             'role' => $validatedUserData['role'],
         ];
+
+        // Speichert eine Company-Zuordnung nur für Provider.
+        // Admins und Applicants bekommen keine Company-Zuordnung.
+        if ($validatedUserData['role'] === 'provider') {
+            $userDataToUpdate['company_id'] = $validatedUserData['company_id'] ?? null;
+        } else {
+            $userDataToUpdate['company_id'] = null;
+        }
 
         // Aktualisiert das Passwort nur, wenn ein neues Passwort eingegeben wurde.
         // Das Hashing übernimmt das User-Model über den password-Cast.
@@ -98,49 +107,5 @@ class UserController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', 'User wurde erfolgreich aktualisiert.');
-    }
-
-    // Ordnet einem Provider genau eine bestehende Firma zu.
-    public function assignCompany(Request $request, User $user): RedirectResponse
-    {
-        $this->authorize('update', $user);
-
-        // Prüft, ob der ausgewählte User wirklich Provider ist.
-        if ($user->role !== 'provider') {
-            return redirect()
-                ->route('users.edit', $user)
-                ->with('error', 'Firmen können nur Usern mit der Rolle provider zugeordnet werden.');
-        }
-
-        // Validiert die ausgewählte Firma.
-        $validatedCompanyData = $request->validate([
-            'company_id' => [
-                'required',
-                Rule::exists('companies', 'id'),
-            ],
-        ]);
-
-        // Prüft, ob der Provider bereits eine andere Firma besitzt.
-        $providerAlreadyHasAnotherCompany = $user->company()
-            ->where('id', '!=', $validatedCompanyData['company_id'])
-            ->exists();
-
-        if ($providerAlreadyHasAnotherCompany) {
-            return redirect()
-                ->route('users.edit', $user)
-                ->withInput()
-                ->with('error', 'Dieser Provider besitzt bereits eine andere Firma.');
-        }
-
-        // Lädt die ausgewählte Firma.
-        $company = Company::findOrFail($validatedCompanyData['company_id']);
-
-        // Ordnet die Firma dem Provider zu.
-        $company->user()->associate($user);
-        $company->save();
-
-        return redirect()
-            ->route('users.edit', $user)
-            ->with('success', 'Firma wurde dem Provider erfolgreich zugeordnet.');
     }
 }

@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
@@ -17,8 +15,8 @@ class CompanyController extends Controller
     {
         $this->authorize('viewAny', Company::class);
 
-        // Lädt alle Firmen inklusive zugehörigem User und Anzahl der JobPostings.
-        $companies = Company::with('user')
+        // Lädt alle Firmen inklusive zugehöriger Provider und Anzahl der JobPostings.
+        $companies = Company::with('providers')
             ->withCount('jobPostings')
             ->orderBy('cmpny_name')
             ->get();
@@ -27,20 +25,11 @@ class CompanyController extends Controller
     }
 
     // Zeigt das Formular zum Anlegen einer neuen Firma an.
-    public function create(): View|RedirectResponse
+    public function create(): View
     {
         $this->authorize('create', Company::class);
 
-        // Enthält alle User mit der Rolle provider.
-        $providers = $this->getProviders();
-
-        if ($providers->isEmpty()) {
-            return redirect()
-                ->route('users.index')
-                ->with('error', 'Es existiert noch kein Provider. Bitte ändere zuerst die Rolle eines Users auf provider.');
-        }
-
-        return view('companies.create', compact('providers'));
+        return view('companies.create');
     }
 
     // Speichert eine neue Firma.
@@ -48,29 +37,8 @@ class CompanyController extends Controller
     {
         $this->authorize('create', Company::class);
 
-        // Enthält die geprüften Formulardaten.
-        $validatedCompanyData = $request->validated();
-
-        // Enthält den ausgewählten Provider.
-        $provider = User::where('role', 'provider')
-            ->where('id', $validatedCompanyData['user_id'])
-            ->firstOrFail();
-
-        // Verhindert, dass ein Provider mehr als eine Firma besitzt.
-        if ($provider->company()->exists()) {
-            return redirect()
-                ->route('companies.create')
-                ->withInput()
-                ->with('error', 'Dieser Provider besitzt bereits eine Firma.');
-        }
-
-        // Entfernt die Provider-Zuordnung aus den normalen Firmendaten.
-        $companyDataWithoutUserId = collect($validatedCompanyData)
-            ->except('user_id')
-            ->toArray();
-
-        // Erstellt die Firma für den ausgewählten Provider.
-        $provider->companies()->create($companyDataWithoutUserId);
+        // Speichert die geprüften Formulardaten.
+        Company::create($request->validated());
 
         return redirect()
             ->route('companies.index')
@@ -82,30 +50,18 @@ class CompanyController extends Controller
     {
         $this->authorize('view', $company);
 
-        // Lädt den zugehörigen User und die JobPostings inklusive Category.
-        $company->load(['user', 'jobPostings.category']);
+        // Lädt die zugeordneten Provider und JobPostings inklusive Category.
+        $company->load(['providers', 'jobPostings.category']);
 
         return view('companies.show', compact('company'));
     }
 
     // Zeigt das Formular zum Bearbeiten einer Firma an.
-    public function edit(Company $company): View|RedirectResponse
+    public function edit(Company $company): View
     {
         $this->authorize('update', $company);
 
-        // Lädt den zugeordneten User für die Anzeige im Formular.
-        $company->load('user');
-
-        // Enthält alle User mit der Rolle provider.
-        $providers = $this->getProviders();
-
-        if (auth()->user()?->role === 'admin' && $providers->isEmpty()) {
-            return redirect()
-                ->route('users.index')
-                ->with('error', 'Es existiert noch kein Provider. Bitte ändere zuerst die Rolle eines Users auf provider.');
-        }
-
-        return view('companies.edit', compact('company', 'providers'));
+        return view('companies.edit', compact('company'));
     }
 
     // Aktualisiert eine bestehende Firma.
@@ -113,40 +69,8 @@ class CompanyController extends Controller
     {
         $this->authorize('update', $company);
 
-        // Enthält die geprüften Formulardaten.
-        $validatedCompanyData = $request->validated();
-
-        // Entfernt die Provider-Zuordnung aus den normalen Firmendaten.
-        $companyDataWithoutUserId = collect($validatedCompanyData)
-            ->except('user_id')
-            ->toArray();
-
-        // Admins dürfen die Firma einem anderen Provider zuordnen.
-        if ($request->user()->role === 'admin') {
-            $provider = User::where('role', 'provider')
-                ->where('id', $validatedCompanyData['user_id'])
-                ->firstOrFail();
-
-            // Verhindert, dass der ausgewählte Provider bereits eine andere Firma besitzt.
-            if ($provider->company()
-                ->where('id', '!=', $company->id)
-                ->exists()
-            ) {
-                return redirect()
-                    ->route('companies.edit', $company)
-                    ->withInput()
-                    ->with('error', 'Dieser Provider besitzt bereits eine andere Firma.');
-            }
-
-            // Aktualisiert die Provider-Zuordnung.
-            $company->user()->associate($provider);
-        }
-
-        // Aktualisiert die normalen Firmendaten.
-        $company->update($companyDataWithoutUserId);
-
-        // Speichert eine mögliche geänderte Provider-Zuordnung.
-        $company->save();
+        // Aktualisiert die geprüften Formulardaten.
+        $company->update($request->validated());
 
         return redirect()
             ->route('companies.index')
@@ -165,18 +89,17 @@ class CompanyController extends Controller
                 ->with('error', 'Diese Firma kann nicht gelöscht werden, weil noch JobPostings zugeordnet sind.');
         }
 
+        // Prüft, ob noch Provider mit dieser Firma verbunden sind.
+        if ($company->providers()->exists()) {
+            return redirect()
+                ->route('companies.show', $company)
+                ->with('error', 'Diese Firma kann nicht gelöscht werden, weil noch Provider zugeordnet sind.');
+        }
+
         $company->delete();
 
         return redirect()
             ->route('companies.index')
             ->with('success', 'Firma wurde erfolgreich gelöscht.');
-    }
-
-    // Lädt alle User mit der Rolle provider.
-    private function getProviders(): Collection
-    {
-        return User::where('role', 'provider')
-            ->orderBy('name')
-            ->get();
     }
 }

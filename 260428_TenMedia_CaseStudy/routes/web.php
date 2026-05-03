@@ -55,4 +55,3 @@ Route::middleware('auth')->group(function () {
 // Lädt die Auth-Routen von Laravel Breeze.
 require __DIR__ . '/auth.php';
 
-//Test für Git Repo

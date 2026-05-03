@@ -1,10 +1,11 @@
 <x-app-layout>
     <x-slot name="title">
-        Firma
+        Firmen anzeigen
     </x-slot>
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Companies
+            Firmen anzeigen
         </h2>
     </x-slot>
 
@@ -17,28 +18,68 @@
                 </div>
             @endif
 
-            <div class="mb-4">
-                <a href="{{ route('companies.create') }}"
-                   class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Neue Firma anlegen
+            @if (session('error'))
+                <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <div class="mb-4 flex items-center gap-4">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="inline-block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                    Zurück zum Dashboard
                 </a>
+
+                @can('create', App\Models\Company::class)
+                    <a
+                        href="{{ route('companies.create') }}"
+                        class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                        Neue Firma anlegen
+                    </a>
+                @endcan
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
                     @if ($companies->isEmpty())
-                        <p>Es wurden noch keine Firmen angelegt.</p>
+                        <p>
+                            Es wurden noch keine Firmen angelegt.
+                        </p>
                     @else
                         <table class="min-w-full border border-gray-300">
                             <thead>
                             <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">Name</th>
-                                <th class="border px-4 py-2 text-left">Ort</th>
-                                <th class="border px-4 py-2 text-left">Beschreibung</th>
-                                <th class="border px-4 py-2 text-left">URL</th>
-                                <th class="border px-4 py-2 text-left">JobPostings</th>
-                                <th class="border px-4 py-2 text-left">Aktionen</th>
+                                <th class="border px-4 py-2 text-left">
+                                    Firma
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Beschreibung
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Website
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Standort
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Provider
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    JobPostings
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Aktionen
+                                </th>
                             </tr>
                             </thead>
 
@@ -50,18 +91,13 @@
                                     </td>
 
                                     <td class="border px-4 py-2">
-                                        {{ $company->cmpny_location ?? 'Keine Angabe' }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
                                         {{ $company->cmpny_description ?? 'Keine Beschreibung' }}
                                     </td>
 
                                     <td class="border px-4 py-2">
                                         @if ($company->website)
-                                            {{-- Ursprüngliches Ziel: href="{{ $company->website }}" --}}
                                             <a
-                                                href="https://www.funfacts.de/"
+                                                href="{{ str_starts_with($company->website, 'http') ? $company->website : 'https://' . $company->website }}"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 class="text-blue-600 hover:underline"
@@ -69,7 +105,19 @@
                                                 {{ $company->website }}
                                             </a>
                                         @else
-                                            Keine Webseite
+                                            Keine Website
+                                        @endif
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $company->cmpny_location ?? 'Keine Angabe' }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        @if ($company->providers->isEmpty())
+                                            Keine Provider
+                                        @else
+                                            {{ $company->providers->pluck('name')->join(', ') }}
                                         @endif
                                     </td>
 
@@ -78,32 +126,46 @@
                                     </td>
 
                                     <td class="border px-4 py-2">
-                                        <a href="{{ route('companies.show', $company) }}"
-                                           class="text-blue-600 hover:underline">
+                                        <a
+                                            href="{{ route('companies.show', $company) }}"
+                                            class="text-blue-600 hover:underline"
+                                        >
                                             Anzeigen
                                         </a>
 
-                                        <span class="mx-1">|</span>
+                                        @can('update', $company)
+                                            <span class="mx-1">|</span>
 
-                                        <a href="{{ route('companies.edit', $company) }}"
-                                           class="text-blue-600 hover:underline">
-                                            Bearbeiten
-                                        </a>
+                                            <a
+                                                href="{{ route('companies.edit', $company) }}"
+                                                class="text-blue-600 hover:underline"
+                                            >
+                                                Bearbeiten
+                                            </a>
+                                        @endcan
 
-                                        <span class="mx-1">|</span>
+                                        @can('delete', $company)
+                                            @if ($company->job_postings_count === 0 && $company->providers->isEmpty())
+                                                <span class="mx-1">|</span>
 
-                                        <form action="{{ route('companies.destroy', $company) }}"
-                                              method="POST"
-                                              class="inline">
-                                            @csrf
-                                            @method('DELETE')
+                                                <form
+                                                    action="{{ route('companies.destroy', $company) }}"
+                                                    method="POST"
+                                                    class="inline"
+                                                >
+                                                    @csrf
+                                                    @method('DELETE')
 
-                                            <button type="submit"
-                                                    class="text-red-600 hover:underline"
-                                                    onclick="return confirm('Diese Firma wirklich löschen?')">
-                                                Löschen
-                                            </button>
-                                        </form>
+                                                    <button
+                                                        type="submit"
+                                                        class="text-red-600 hover:underline"
+                                                        onclick="return confirm('Diese Firma wirklich löschen?')"
+                                                    >
+                                                        Löschen
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach

@@ -6,7 +6,7 @@ use App\Models\User;
 
 class UserPolicy
 {
-    // Admins dürfen alle Aktionen ausführen.
+    // Admins dürfen alle Aktionen in der Userverwaltung ausführen.
     public function before(User $user, string $ability): ?bool
     {
         if ($user->role === 'admin') {
@@ -28,7 +28,7 @@ class UserPolicy
         return false;
     }
 
-    // Prüft, ob ein User einen User bearbeiten darf.
+    // Prüft, ob ein User bearbeitet werden darf.
     public function update(User $user, User $targetUser): bool
     {
         return false;

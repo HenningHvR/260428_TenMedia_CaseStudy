@@ -27,15 +27,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
 
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold">
-                            {{ $user->name }}
-                        </h3>
-
-                        <p class="mt-2 text-gray-700">
-                            Übersicht zu Userdaten, Rolle, Firmen und zugehörigen JobPostings.
-                        </p>
-                    </div>
+                    <h3 class="text-lg font-semibold mb-6">
+                        {{ $user->name }}
+                    </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
@@ -70,11 +64,11 @@
 
                         <div>
                             <p class="text-sm font-medium text-gray-700">
-                                Anzahl Firmen
+                                Firma
                             </p>
 
                             <p class="mt-1 text-gray-900">
-                                {{ $user->companies->count() }}
+                                {{ $user->company?->cmpny_name ?? 'Keine Firma' }}
                             </p>
                         </div>
 
@@ -84,7 +78,7 @@
                             </p>
 
                             <p class="mt-1 text-gray-900">
-                                {{ $user->companies->sum(fn ($company) => $company->jobPostings->count()) }}
+                                {{ $user->jobPostings->count() }}
                             </p>
                         </div>
 
@@ -114,7 +108,7 @@
                             href="{{ route('users.edit', $user) }}"
                             class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
                         >
-                            Rolle bearbeiten
+                            Bearbeiten
                         </a>
 
                         <a
@@ -135,76 +129,6 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900">
-
-                    <h3 class="text-lg font-semibold mb-4">
-                        Zugehörige Firmen
-                    </h3>
-
-                    @if ($user->companies->isEmpty())
-                        <p>
-                            Diesem User sind noch keine Firmen zugeordnet.
-                        </p>
-                    @else
-                        <table class="min-w-full border border-gray-300">
-                            <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">Firma</th>
-                                <th class="border px-4 py-2 text-left">Ort</th>
-                                <th class="border px-4 py-2 text-left">Website</th>
-                                <th class="border px-4 py-2 text-left">JobPostings</th>
-                                <th class="border px-4 py-2 text-left">Aktion</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                            @foreach ($user->companies as $company)
-                                <tr>
-                                    <td class="border px-4 py-2">
-                                        {{ $company->cmpny_name }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        {{ $company->cmpny_location ?? 'Keine Angabe' }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        @if ($company->website)
-                                            <a
-                                                href="https://www.funfacts.de/"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                class="text-blue-600 hover:underline"
-                                            >
-                                                {{ $company->website }}
-                                            </a>
-                                        @else
-                                            Keine Website
-                                        @endif
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        {{ $company->jobPostings->count() }}
-                                    </td>
-
-                                    <td class="border px-4 py-2">
-                                        <a
-                                            href="{{ route('companies.show', $company) }}"
-                                            class="text-blue-600 hover:underline"
-                                        >
-                                            Anzeigen
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    @endif
-
-                </div>
-            </div>
-
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
@@ -212,36 +136,49 @@
                         Zugehörige JobPostings
                     </h3>
 
-                    @php
-                        $jobPostings = $user->companies->flatMap(fn ($company) => $company->jobPostings);
-                    @endphp
-
-                    @if ($jobPostings->isEmpty())
+                    @if ($user->jobPostings->isEmpty())
                         <p>
-                            Diesem User sind noch keine JobPostings über Firmen zugeordnet.
+                            Diesem User sind noch keine JobPostings zugeordnet.
                         </p>
                     @else
                         <table class="min-w-full border border-gray-300">
                             <thead>
                             <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">Titel</th>
-                                <th class="border px-4 py-2 text-left">Firma</th>
-                                <th class="border px-4 py-2 text-left">Kategorie</th>
-                                <th class="border px-4 py-2 text-left">Ort</th>
-                                <th class="border px-4 py-2 text-left">Status</th>
-                                <th class="border px-4 py-2 text-left">Aktion</th>
+                                <th class="border px-4 py-2 text-left">
+                                    Titel
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Firma
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Kategorie
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Standort
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Status
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Aktion
+                                </th>
                             </tr>
                             </thead>
 
                             <tbody>
-                            @foreach ($jobPostings as $jobPosting)
+                            @foreach ($user->jobPostings as $jobPosting)
                                 <tr>
                                     <td class="border px-4 py-2">
                                         {{ $jobPosting->title }}
                                     </td>
 
                                     <td class="border px-4 py-2">
-                                        {{ $jobPosting->company->cmpny_name ?? 'Keine Company' }}
+                                        {{ $jobPosting->company->cmpny_name ?? 'Keine Firma' }}
                                     </td>
 
                                     <td class="border px-4 py-2">

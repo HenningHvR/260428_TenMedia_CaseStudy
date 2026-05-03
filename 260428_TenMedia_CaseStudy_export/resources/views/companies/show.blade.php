@@ -10,7 +10,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('success'))
                 <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
@@ -27,35 +27,18 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
 
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold">
-                            {{ $company->cmpny_name }}
-                        </h3>
-
-                        <p class="mt-2 text-gray-700">
-                            {{ $company->cmpny_description ?? 'Keine Beschreibung hinterlegt.' }}
-                        </p>
-                    </div>
+                    <h3 class="text-lg font-semibold mb-6">
+                        {{ $company->cmpny_name }}
+                    </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
                             <p class="text-sm font-medium text-gray-700">
-                                Webseite / URL
+                                Firmen-Name
                             </p>
 
                             <p class="mt-1 text-gray-900">
-                                @if ($company->website)
-                                    <a
-                                        href="https://www.funfacts.de/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="text-blue-600 hover:underline"
-                                    >
-                                        {{ $company->website }}
-                                    </a>
-                                @else
-                                    Keine Webseite hinterlegt.
-                                @endif
+                                {{ $company->cmpny_name }}
                             </p>
                         </div>
 
@@ -71,11 +54,22 @@
 
                         <div>
                             <p class="text-sm font-medium text-gray-700">
-                                Zugehörige Nutzerin/Nutzer
+                                Website
                             </p>
 
                             <p class="mt-1 text-gray-900">
-                                {{ $company->user->name ?? 'Kein User zugeordnet' }}
+                                @if ($company->website)
+                                    <a
+                                        href="{{ str_starts_with($company->website, 'http') ? $company->website : 'https://' . $company->website }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="text-blue-600 hover:underline"
+                                    >
+                                        {{ $company->website }}
+                                    </a>
+                                @else
+                                    Keine Website
+                                @endif
                             </p>
                         </div>
 
@@ -89,58 +83,98 @@
                             </p>
                         </div>
 
-                        <div>
+                        <div class="md:col-span-2">
                             <p class="text-sm font-medium text-gray-700">
-                                Erstellt am
+                                Beschreibung
                             </p>
 
                             <p class="mt-1 text-gray-900">
-                                {{ $company->created_at?->format('d.m.Y H:i') ?? 'Keine Angabe' }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-gray-700">
-                                Zuletzt geändert am
-                            </p>
-
-                            <p class="mt-1 text-gray-900">
-                                {{ $company->updated_at?->format('d.m.Y H:i') ?? 'Keine Angabe' }}
+                                {{ $company->cmpny_description ?? 'Keine Beschreibung' }}
                             </p>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <a
-                            href="{{ route('companies.edit', $company) }}"
-                            class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-                        >
-                            Bearbeiten
-                        </a>
-
-                        <form
-                            method="POST"
-                            action="{{ route('companies.destroy', $company) }}"
-                            onsubmit="return confirm('Diese Firma wirklich löschen?');"
-                        >
-                            @csrf
-                            @method('DELETE')
-
-                            <button
-                                type="submit"
-                                class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-600"
+                        @can('update', $company)
+                            <a
+                                href="{{ route('companies.edit', $company) }}"
+                                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
                             >
-                                Löschen
-                            </button>
-                        </form>
+                                Bearbeiten
+                            </a>
+                        @endcan
 
                         <a
                             href="{{ route('companies.index') }}"
                             class="text-sm text-gray-600 hover:text-gray-900"
                         >
-                            Zurück zur Übersicht
+                            Zurück zur Firmenliste
+                        </a>
+
+                        <a
+                            href="{{ route('dashboard') }}"
+                            class="text-sm text-gray-600 hover:text-gray-900"
+                        >
+                            Zurück zum Dashboard
                         </a>
                     </div>
+
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 text-gray-900">
+
+                    <h3 class="text-lg font-semibold mb-4">
+                        Zugeordnete Provider
+                    </h3>
+
+                    @if ($company->providers->isEmpty())
+                        <p>
+                            Dieser Firma sind noch keine Provider zugeordnet.
+                        </p>
+                    @else
+                        <table class="min-w-full border border-gray-300">
+                            <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border px-4 py-2 text-left">
+                                    Name
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    E-Mail
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Aktion
+                                </th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @foreach ($company->providers as $provider)
+                                <tr>
+                                    <td class="border px-4 py-2">
+                                        {{ $provider->name }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $provider->email }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        <a
+                                            href="{{ route('users.show', $provider) }}"
+                                            class="text-blue-600 hover:underline"
+                                        >
+                                            Anzeigen
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
 
                 </div>
             </div>
@@ -154,17 +188,31 @@
 
                     @if ($company->jobPostings->isEmpty())
                         <p>
-                            Dieser Firma sind noch keine JobPostings zugeordnet.
+                            Für diese Firma wurden noch keine JobPostings angelegt.
                         </p>
                     @else
                         <table class="min-w-full border border-gray-300">
                             <thead>
                             <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">Titel</th>
-                                <th class="border px-4 py-2 text-left">Kategorie</th>
-                                <th class="border px-4 py-2 text-left">Ort</th>
-                                <th class="border px-4 py-2 text-left">Status</th>
-                                <th class="border px-4 py-2 text-left">Aktion</th>
+                                <th class="border px-4 py-2 text-left">
+                                    Titel
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Kategorie
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Standort
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Status
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Aktion
+                                </th>
                             </tr>
                             </thead>
 

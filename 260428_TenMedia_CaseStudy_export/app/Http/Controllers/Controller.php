@@ -6,6 +6,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 abstract class Controller
 {
-    // Bereitstellung der Methode $this->authorize(...) für alle Controller.
+    // Bereitstellung der Methode $this->authorize() für alle Controller.
     use AuthorizesRequests;
 }

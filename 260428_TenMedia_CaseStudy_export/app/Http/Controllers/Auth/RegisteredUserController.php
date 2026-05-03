@@ -10,32 +10,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-
-    // Anzeige der Registrierung.
+    // Zeigt das Registrierungsformular an.
     public function create(): View
     {
         return view('auth.register');
     }
 
-
-    // eingehende Registrierungsanfrage bearbeiten.
+    // Verarbeitet die eingehende Registrierungsanfrage.
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Erstellt einen neuen User mit der Standardrolle applicant.
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'applicant',
         ]);
 
         event(new Registered($user));

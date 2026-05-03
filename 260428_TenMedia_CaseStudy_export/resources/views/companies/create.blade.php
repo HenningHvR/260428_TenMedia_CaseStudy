@@ -11,11 +11,53 @@
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+
+            @if (session('error'))
+                <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
                     <form method="POST" action="{{ route('companies.store') }}">
                         @csrf
+
+                        <fieldset class="mb-4">
+                            <legend class="block font-medium text-sm text-gray-700">
+                                Provider
+                            </legend>
+
+                            <div class="mt-2 space-y-2">
+                                @foreach ($providers as $provider)
+                                    <label class="flex items-center gap-2">
+                                        <input
+                                            type="radio"
+                                            name="user_id"
+                                            value="{{ $provider->id }}"
+                                            required
+                                            @checked(old('user_id') == $provider->id)
+                                            class="border-gray-300 text-gray-800 shadow-sm"
+                                        >
+
+                                        <span class="text-sm text-gray-700">
+                                            {{ $provider->name }} | {{ $provider->email }}
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            @error('user_id')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </fieldset>
 
                         <div class="mb-4">
                             <label for="cmpny_name" class="block font-medium text-sm text-gray-700">

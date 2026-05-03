@@ -3,38 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable
 {
-    // @use HasFactory<UserFactory>
     use HasFactory, Notifiable;
 
-
     // Attribute, die per Mass Assignment befüllt werden dürfen.
-    // @var list<string>
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'company_id',
     ];
 
-
     // Attribute, die bei der Ausgabe verborgen werden.
-    // @var list<string>
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-
     // Attribute, die automatisch umgewandelt werden sollen.
-    // @return array<string, string>
-
     protected function casts(): array
     {
         return [
@@ -43,22 +36,21 @@ class User extends Authenticatable
         ];
     }
 
-    // Ein User kann mehrere Companies besitzen.
-    public function companies(): HasMany
+    // Ein Provider gehört maximal zu einer Company.
+    public function company(): BelongsTo
     {
-        return $this->hasMany(Company::class);
+        return $this->belongsTo(Company::class);
     }
 
-
-    // Ein User kann über seine Companies mehrere JobPostings besitzen.
+    // Ein Provider kann über seine Company mehrere JobPostings besitzen.
     public function jobPostings(): HasManyThrough
     {
         return $this->hasManyThrough(
             JobPosting::class,
             Company::class,
-            'user_id',
-            'company_id',
             'id',
+            'company_id',
+            'company_id',
             'id'
         );
     }

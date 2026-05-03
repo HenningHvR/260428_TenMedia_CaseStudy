@@ -8,7 +8,7 @@ use App\Models\User;
 class JobPostingPolicy
 {
     // Admins dürfen alle Aktionen ausführen.
-    public function before(User $user, string $ability): bool|null
+    public function before(User $user, string $ability): ?bool
     {
         if ($user->role === 'admin') {
             return true;
@@ -32,15 +32,18 @@ class JobPostingPolicy
     // Prüft, ob ein User ein JobPosting erstellen darf.
     public function create(User $user): bool
     {
-        return $user->role === 'provider';
+        return $user->role === 'provider'
+            && $user->company_id !== null;
     }
 
+    // Prüft, ob ein User ein JobPosting bearbeiten darf.
     public function update(User $user, JobPosting $jobPosting): bool
     {
         return $user->role === 'provider'
             && $user->company_id === $jobPosting->company_id;
     }
 
+    // Prüft, ob ein User ein JobPosting löschen darf.
     public function delete(User $user, JobPosting $jobPosting): bool
     {
         return $this->update($user, $jobPosting);

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Company extends Model
 {
     use HasFactory;
@@ -16,14 +19,14 @@ class Company extends Model
         'cmpny_location',
     ];
 
-    // Eine Company gehört zu genau einem User.
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // Eine Company gehört zu genau einem User bzw. Provider.
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     // Eine Company kann mehrere JobPostings besitzen.
-    public function jobPostings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function jobPostings(): HasMany
     {
         return $this->hasMany(JobPosting::class);
     }

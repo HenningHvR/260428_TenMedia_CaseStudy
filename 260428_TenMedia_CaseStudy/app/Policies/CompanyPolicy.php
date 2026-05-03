@@ -8,7 +8,7 @@ use App\Models\User;
 class CompanyPolicy
 {
     // Admins dürfen alle Aktionen ausführen.
-    public function before(User $user, string $ability): bool|null
+    public function before(User $user, string $ability): ?bool
     {
         if ($user->role === 'admin') {
             return true;
@@ -30,9 +30,11 @@ class CompanyPolicy
     }
 
     // Prüft, ob ein User eine Firma erstellen darf.
+    // Nicht-Admins dürfen keine Companies erstellen.
+    // Admins werden über before() erlaubt.
     public function create(User $user): bool
     {
-        return $user->role === 'provider';
+        return false;
     }
 
     // Prüft, ob ein User eine Firma bearbeiten darf.

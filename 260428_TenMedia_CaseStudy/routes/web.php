@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
             'edit',
             'update',
         ]);
+
+    Route::patch('/users/{user}/assign-company', [UserController::class, 'assignCompany'])
+        ->name('users.assign-company');
 });
 
 // Lädt die Auth-Routen von Laravel Breeze.

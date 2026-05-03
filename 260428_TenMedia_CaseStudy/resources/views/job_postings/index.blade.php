@@ -1,10 +1,11 @@
 <x-app-layout>
     <x-slot name="title">
-        JobPosting
+        JobPostings anzeigen
     </x-slot>
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            JobPostings
+            JobPostings anzeigen
         </h2>
     </x-slot>
 
@@ -17,31 +18,76 @@
                 </div>
             @endif
 
-            <div class="mb-4">
-                <a href="{{ route('job-postings.create') }}"
-                   class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Neues JobPosting anlegen
+            @if (session('error'))
+                <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <div class="mb-4 flex items-center gap-4">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="inline-block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                    Zurück zum Dashboard
                 </a>
+
+                @can('create', \App\Models\JobPosting::class)
+                    <a
+                        href="{{ route('job-postings.create') }}"
+                        class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                        Neues JobPosting anlegen
+                    </a>
+                @endcan
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
                     @if ($jobPostings->isEmpty())
-                        <p>Es wurden noch keine JobPostings angelegt.</p>
+                        <p>
+                            Es wurden noch keine JobPostings angelegt.
+                        </p>
                     @else
                         <table class="min-w-full border border-gray-300">
                             <thead>
                             <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">Titel</th>
-                                <th class="border px-4 py-2 text-left">Firma</th>
-                                <th class="border px-4 py-2 text-left">Kategorie</th>
-                                <th class="border px-4 py-2 text-left">Ort</th>
-                                <th class="border px-4 py-2 text-left">Erfahrungslevel</th>
-                                <th class="border px-4 py-2 text-left">Arbeitszeit</th>
-                                <th class="border px-4 py-2 text-left">Gehalt</th>
-                                <th class="border px-4 py-2 text-left">Status</th>
-                                <th class="border px-4 py-2 text-left">Aktionen</th>
+                                <th class="border px-4 py-2 text-left">
+                                    Titel
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Firma
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Kategorie
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Ort
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Erfahrungslevel
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Arbeitszeit
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Gehalt
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Status
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Aktionen
+                                </th>
                             </tr>
                             </thead>
 
@@ -53,7 +99,7 @@
                                     </td>
 
                                     <td class="border px-4 py-2">
-                                        {{ $jobPosting->company->cmpny_name ?? 'Keine Company' }}
+                                        {{ $jobPosting->company->cmpny_name ?? 'Keine Firma' }}
                                     </td>
 
                                     <td class="border px-4 py-2">
@@ -73,8 +119,8 @@
                                     </td>
 
                                     <td class="border px-4 py-2 whitespace-nowrap">
-                                        @if ($jobPosting->salary)
-                                            {{ number_format($jobPosting->salary, 0, ',', '.') }}&nbsp;€
+                                        @if ($jobPosting->salary !== null)
+                                            {{ number_format($jobPosting->salary, 2, ',', '.') }} €
                                         @else
                                             Keine Angabe
                                         @endif
@@ -88,33 +134,45 @@
                                         @endif
                                     </td>
 
-                                    <td class="border px-4 py-2">
-                                        <a href="{{ route('job-postings.show', $jobPosting) }}"
-                                           class="text-blue-600 hover:underline">
+                                    <td class="border px-4 py-2 whitespace-nowrap">
+                                        <a
+                                            href="{{ route('job-postings.show', $jobPosting) }}"
+                                            class="text-blue-600 hover:underline"
+                                        >
                                             Anzeigen
                                         </a>
 
-                                        <span class="mx-1">|</span>
+                                        @can('update', $jobPosting)
+                                            <span class="mx-1">|</span>
 
-                                        <a href="{{ route('job-postings.edit', $jobPosting) }}"
-                                           class="text-blue-600 hover:underline">
-                                            Bearbeiten
-                                        </a>
+                                            <a
+                                                href="{{ route('job-postings.edit', $jobPosting) }}"
+                                                class="text-blue-600 hover:underline"
+                                            >
+                                                Bearbeiten
+                                            </a>
+                                        @endcan
 
-                                        <span class="mx-1">|</span>
+                                        @can('delete', $jobPosting)
+                                            <span class="mx-1">|</span>
 
-                                        <form action="{{ route('job-postings.destroy', $jobPosting) }}"
-                                              method="POST"
-                                              class="inline">
-                                            @csrf
-                                            @method('DELETE')
+                                            <form
+                                                action="{{ route('job-postings.destroy', $jobPosting) }}"
+                                                method="POST"
+                                                class="inline"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
 
-                                            <button type="submit"
+                                                <button
+                                                    type="submit"
                                                     class="text-red-600 hover:underline"
-                                                    onclick="return confirm('Dieses JobPosting wirklich löschen?')">
-                                                Löschen
-                                            </button>
-                                        </form>
+                                                    onclick="return confirm('Dieses JobPosting wirklich löschen?')"
+                                                >
+                                                    Löschen
+                                                </button>
+                                            </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach

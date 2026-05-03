@@ -32,34 +32,7 @@
                         @method('PUT')
 
                         @if (auth()->user()?->role === 'admin')
-                            <fieldset class="mb-4">
-                                <legend class="block font-medium text-sm text-gray-700">
-                                    Provider
-                                </legend>
 
-                                <div class="mt-2 space-y-2">
-                                    @foreach ($providers as $provider)
-                                        <label class="flex items-center gap-2">
-                                            <input
-                                                type="radio"
-                                                name="user_id"
-                                                value="{{ $provider->id }}"
-                                                required
-                                                @checked(old('user_id', $company->user_id) == $provider->id)
-                                                class="border-gray-300 text-gray-800 shadow-sm"
-                                            >
-
-                                            <span class="text-sm text-gray-700">
-                                                {{ $provider->name }} | {{ $provider->email }}
-                                            </span>
-                                        </label>
-                                    @endforeach
-                                </div>
-
-                                @error('user_id')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </fieldset>
                         @else
                             <div class="mb-4">
                                 <p class="block font-medium text-sm text-gray-700">

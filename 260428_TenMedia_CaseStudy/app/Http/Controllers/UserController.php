@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Company;
-use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -16,8 +16,9 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        // Lädt alle User inklusive Anzahl der indirekt zugehörigen JobPostings.
-        $users = User::withCount('jobPostings')
+        // Lädt alle User mit der zugehörigen Firma inklusive Anzahl der indirekt zugehörigen JobPostings.
+        $users = User::with('companies')
+            ->withCount('jobPostings')
             ->orderBy('name')
             ->get();
 
@@ -40,82 +41,53 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        // Lädt die aktuell zugeordnete Company des Users.
-        $user->load('companies');
-
-        // Enthält alle Companies für die Provider-Zuordnung durch Admins.
-        $companies = Company::with('user')
-            ->orderBy('cmpny_name')
-            ->get();
-
-        return view('users.edit', compact('user', 'companies'));
+        return view('users.edit', compact('user'));
     }
 
-    // Aktualisiert die Rolle eines Users.
+    // Aktualisiert einen bestehenden User.
     public function update(Request $request, User $user): RedirectResponse
     {
         $this->authorize('update', $user);
 
-        // Verhindert, dass ein Admin die eigene Rolle ändert.
-        if ($request->user()->id === $user->id) {
-            return redirect()
-                ->route('users.index')
-                ->with('error', 'Die eigene Rolle kann nicht geändert werden.');
-        }
-
-        // Validiert die Rolle.
+        // Validiert die Eingabedaten für Name, E-Mail, optionales Passwort und Rolle.
         $validatedUserData = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
             'role' => ['required', 'in:admin,provider,applicant'],
         ]);
 
-        // Aktualisiert die Rolle des Users.
-        $user->update($validatedUserData);
+        // Verhindert, dass ein Admin die eigene Rolle ändert.
+        if ($request->user()->id === $user->id && $validatedUserData['role'] !== $user->role) {
+            return redirect()
+                ->route('users.edit', $user)
+                ->with('error', 'Die eigene Rolle kann nicht geändert werden.');
+        }
+
+        // Enthält die aktualisierbaren Userdaten.
+        $userDataToUpdate = [
+            'name' => $validatedUserData['name'],
+            'email' => $validatedUserData['email'],
+            'role' => $validatedUserData['role'],
+        ];
+
+        // Aktualisiert das Passwort nur, wenn ein neues Passwort eingegeben wurde.
+        // Das Hashing übernimmt das User-Model über den password-Cast.
+        if (! empty($validatedUserData['password'])) {
+            $userDataToUpdate['password'] = $validatedUserData['password'];
+        }
+
+        $user->update($userDataToUpdate);
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User-Rolle wurde erfolgreich aktualisiert.');
-    }
-
-    // Ordnet einem Provider genau eine bestehende Company zu.
-    public function assignCompany(Request $request, User $user): RedirectResponse
-    {
-        $this->authorize('update', $user);
-
-        // Prüft, ob der ausgewählte User wirklich Provider ist.
-        if ($user->role !== 'provider') {
-            return redirect()
-                ->route('users.edit', $user)
-                ->with('error', 'Companies können nur Usern mit der Rolle provider zugeordnet werden.');
-        }
-
-        // Validiert die ausgewählte Company.
-        $validatedCompanyData = $request->validate([
-            'company_id' => [
-                'required',
-                Rule::exists('companies', 'id'),
-            ],
-        ]);
-
-        // Prüft, ob der Provider bereits eine andere Company besitzt.
-        $alreadyAssignedCompany = $user->companies()
-            ->where('id', '!=', $validatedCompanyData['company_id'])
-            ->first();
-
-        if ($alreadyAssignedCompany) {
-            return redirect()
-                ->route('users.edit', $user)
-                ->with('error', 'Dieser Provider besitzt bereits eine Company. Bitte ordne zuerst die bestehende Company einem anderen Provider zu.');
-        }
-
-        // Lädt die ausgewählte Company.
-        $company = Company::findOrFail($validatedCompanyData['company_id']);
-
-        // Ordnet die Company dem Provider zu.
-        $company->user()->associate($user);
-        $company->save();
-
-        return redirect()
-            ->route('users.edit', $user)
-            ->with('success', 'Company wurde dem Provider erfolgreich zugeordnet.');
+            ->with('success', 'User wurde erfolgreich aktualisiert.');
     }
 }

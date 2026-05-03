@@ -37,16 +37,36 @@
                 <div class="p-6 text-gray-900">
 
                     @if ($users->isEmpty())
-                        <p>Es wurden noch keine User angelegt.</p>
+                        <p>
+                            Es wurden noch keine User angelegt.
+                        </p>
                     @else
                         <table class="min-w-full border border-gray-300">
                             <thead>
                             <tr class="bg-gray-100">
-                                <th class="border px-4 py-2 text-left">Name</th>
-                                <th class="border px-4 py-2 text-left">E-Mail</th>
-                                <th class="border px-4 py-2 text-left">Rolle</th>
-                                <th class="border px-4 py-2 text-left">JobPostings</th>
-                                <th class="border px-4 py-2 text-left">Aktionen</th>
+                                <th class="border px-4 py-2 text-left">
+                                    Name
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    E-Mail
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Rolle
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Firma
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    JobPostings
+                                </th>
+
+                                <th class="border px-4 py-2 text-left">
+                                    Aktionen
+                                </th>
                             </tr>
                             </thead>
 
@@ -63,6 +83,14 @@
 
                                     <td class="border px-4 py-2">
                                         {{ $user->role }}
+                                    </td>
+                                    
+                                    <td class="border px-4 py-2">
+                                        @if ($user->companies->isEmpty())
+                                            Keine Firma
+                                        @else
+                                            {{ $user->companies->pluck('cmpny_name')->join(', ') }}
+                                        @endif
                                     </td>
 
                                     <td class="border px-4 py-2">
@@ -83,7 +111,7 @@
                                             href="{{ route('users.edit', $user) }}"
                                             class="text-blue-600 hover:underline"
                                         >
-                                            Rolle bearbeiten
+                                            Bearbeiten
                                         </a>
                                     </td>
                                 </tr>

@@ -3,19 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    // @use HasFactory<UserFactory>
     use HasFactory, Notifiable;
 
-
     // Attribute, die per Mass Assignment befüllt werden dürfen.
-    // @var list<string>
     protected $fillable = [
         'name',
         'email',
@@ -23,18 +20,13 @@ class User extends Authenticatable
         'role',
     ];
 
-
     // Attribute, die bei der Ausgabe verborgen werden.
-    // @var list<string>
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-
     // Attribute, die automatisch umgewandelt werden sollen.
-    // @return array<string, string>
-
     protected function casts(): array
     {
         return [
@@ -48,7 +40,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Company::class);
     }
-
 
     // Ein User kann über seine Companies mehrere JobPostings besitzen.
     public function jobPostings(): HasManyThrough

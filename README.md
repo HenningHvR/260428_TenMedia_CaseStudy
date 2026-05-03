@@ -217,7 +217,7 @@ Insgesamt werden erzeugt:
 | Kategorien | 3 |
 | Firmen | 6 |
 | JobPostings | 18 |
-| User | 11 |
+| User | 12 |
 
 ---
 

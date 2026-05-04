@@ -185,6 +185,8 @@ Das ermöglicht:
 - eigene Rolle kann nicht geändert werden
 - Userverwaltung nur für Admin sichtbar
 
+Die User-Erstellung erfolgt über Laravel Breeze. Die administrative Userverwaltung umfasst Listenansicht, Detailansicht und Bearbeitung inklusive Rollen- und Company-Zuordnung.
+
 ---
 
 ## Testdaten

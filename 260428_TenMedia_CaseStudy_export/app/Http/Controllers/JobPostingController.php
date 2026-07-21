@@ -22,6 +22,7 @@ class JobPostingController extends Controller
     {
         $this->authorize('viewAny', JobPosting::class);
 
+        // Lädt alle JobPostings inklusive zugehöriger Company und Category.
         $jobPostings = JobPosting::with(['company', 'category'])
             ->latest()
             ->get();
@@ -34,10 +35,13 @@ class JobPostingController extends Controller
     {
         $this->authorize('create', JobPosting::class);
 
+        // Enthält den aktuell eingeloggten User.
         $currentUser = $this->getCurrentUser();
 
+        // Lädt die Companies, die der aktuelle User für JobPostings auswählen darf.
         $companies = $this->getSelectableCompaniesForUser($currentUser);
 
+        // Lädt alle verfügbaren Kategorien.
         $categories = Category::orderBy('ctgry_name')->get();
 
         return view('job_postings.create', compact('companies', 'categories'));
@@ -48,25 +52,34 @@ class JobPostingController extends Controller
     {
         $this->authorize('create', JobPosting::class);
 
+        // Enthält die geprüften Eingabedaten aus dem Formular.
         $validatedJobPostingData = $request->validated();
 
+        // Setzt den Aktivstatus sauber als booleschen Wert.
         $validatedJobPostingData['is_active'] = $request->boolean('is_active', true);
 
+        // Enthält den aktuell eingeloggten User.
         $currentUser = $this->getCurrentUser();
 
+        // Lädt die Company, die der aktuelle User verwenden darf.
         $company = $this->findSelectableCompanyForUser(
             $currentUser,
             (int) $validatedJobPostingData['company_id']
         );
 
+        // Lädt die zugehörige Category.
         $category = Category::findOrFail($validatedJobPostingData['category_id']);
 
+        // Entfernt Fremdschlüssel aus den Mass-Assignment-Daten.
         $jobPostingDataWithoutForeignKeys = $this->getJobPostingDataWithoutForeignKeys($validatedJobPostingData);
 
+        // Erstellt ein neues JobPosting ohne direkte Fremdschlüssel-Zuweisung.
         $jobPosting = new JobPosting($jobPostingDataWithoutForeignKeys);
 
+        // Verknüpft das JobPosting mit der Category.
         $jobPosting->category()->associate($category);
 
+        // Verknüpft das JobPosting mit der Company und speichert es.
         $company->jobPostings()->save($jobPosting);
 
         return redirect()
@@ -79,6 +92,7 @@ class JobPostingController extends Controller
     {
         $this->authorize('view', $jobPosting);
 
+        // Lädt die zugehörigen Beziehungen für die Detailansicht.
         $jobPosting->load(['company', 'category']);
 
         return view('job_postings.show', compact('jobPosting'));
@@ -89,10 +103,13 @@ class JobPostingController extends Controller
     {
         $this->authorize('update', $jobPosting);
 
+        // Enthält den aktuell eingeloggten User.
         $currentUser = $this->getCurrentUser();
 
+        // Lädt die Companies, die der aktuelle User für JobPostings auswählen darf.
         $companies = $this->getSelectableCompaniesForUser($currentUser);
 
+        // Lädt alle verfügbaren Kategorien.
         $categories = Category::orderBy('ctgry_name')->get();
 
         return view('job_postings.edit', compact('jobPosting', 'companies', 'categories'));
@@ -103,26 +120,37 @@ class JobPostingController extends Controller
     {
         $this->authorize('update', $jobPosting);
 
+        // Enthält die geprüften Eingabedaten aus dem Formular.
         $validatedJobPostingData = $request->validated();
 
+        // Setzt den Aktivstatus sauber als booleschen Wert.
         $validatedJobPostingData['is_active'] = $request->boolean('is_active');
 
+        // Enthält den aktuell eingeloggten User.
         $currentUser = $this->getCurrentUser();
 
+        // Lädt die Company, die der aktuelle User verwenden darf.
         $company = $this->findSelectableCompanyForUser(
             $currentUser,
             (int) $validatedJobPostingData['company_id']
         );
 
+        // Lädt die zugehörige Category.
         $category = Category::findOrFail($validatedJobPostingData['category_id']);
 
+        // Entfernt Fremdschlüssel aus den Mass-Assignment-Daten.
         $jobPostingDataWithoutForeignKeys = $this->getJobPostingDataWithoutForeignKeys($validatedJobPostingData);
 
+        // Aktualisiert die normalen Attribute des JobPostings.
         $jobPosting->update($jobPostingDataWithoutForeignKeys);
 
+        // Aktualisiert die Company-Zuordnung.
         $jobPosting->company()->associate($company);
+
+        // Aktualisiert die Category-Zuordnung.
         $jobPosting->category()->associate($category);
 
+        // Speichert die geänderten Zuordnungen.
         $jobPosting->save();
 
         return redirect()
@@ -135,6 +163,7 @@ class JobPostingController extends Controller
     {
         $this->authorize('delete', $jobPosting);
 
+        // Löscht das JobPosting.
         $jobPosting->delete();
 
         return redirect()
@@ -158,7 +187,11 @@ class JobPostingController extends Controller
             return Company::orderBy('cmpny_name')->get();
         }
 
-        return $currentUser->companies()
+        if ($currentUser->company_id === null) {
+            return new Collection();
+        }
+
+        return Company::whereKey($currentUser->company_id)
             ->orderBy('cmpny_name')
             ->get();
     }
@@ -167,12 +200,14 @@ class JobPostingController extends Controller
     private function findSelectableCompanyForUser(User $currentUser, int $companyId): Company
     {
         if ($this->isAdmin($currentUser)) {
-            return Company::where('id', $companyId)->firstOrFail();
+            return Company::whereKey($companyId)->firstOrFail();
         }
 
-        return $currentUser->companies()
-            ->where('id', $companyId)
-            ->firstOrFail();
+        if ($currentUser->company_id === null || $currentUser->company_id !== $companyId) {
+            abort(403, 'Diese Company darf für dieses JobPosting nicht verwendet werden.');
+        }
+
+        return Company::whereKey($companyId)->firstOrFail();
     }
 
     // Prüft, ob der aktuelle User Admin ist.

@@ -36,13 +36,14 @@ class User extends Authenticatable
         ];
     }
 
-    // Ein Provider gehört maximal zu einer Company.
+    // Ein User kann optional genau einer Company zugeordnet sein.
+    // Fachlich wird diese Zuordnung für Provider genutzt.
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    // Ein Provider kann über seine Company mehrere JobPostings besitzen.
+    // Ein User kann über seine Company mehrere JobPostings besitzen.
     public function jobPostings(): HasManyThrough
     {
         return $this->hasManyThrough(

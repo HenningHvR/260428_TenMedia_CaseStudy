@@ -44,8 +44,9 @@ class CompanyPolicy
     }
 
     // Prüft, ob ein User eine Firma löschen darf.
+    // Admins werden über before() erlaubt.
     public function delete(User $user, Company $company): bool
     {
-        return $this->update($user, $company);
+        return false;
     }
 }
